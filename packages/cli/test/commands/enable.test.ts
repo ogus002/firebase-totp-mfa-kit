@@ -1,12 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runEnable } from '../../src/commands/enable';
-import * as identityPlatform from '../../src/utils/identity-platform';
-import * as execGcloud from '../../src/utils/exec-gcloud';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { runEnable } from '../../src/commands/enable.js';
+import * as identityPlatform from '../../src/utils/identity-platform.js';
+import * as execGcloud from '../../src/utils/exec-gcloud.js';
 
 describe('enable — first-init (404 CONFIGURATION_NOT_FOUND)', () => {
   beforeEach(() => {
     vi.spyOn(execGcloud, 'gcloudActiveAccount').mockResolvedValue('test@example.com');
     vi.spyOn(execGcloud, 'gcloudCurrentProject').mockResolvedValue('test-project');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('treats 404 CONFIGURATION_NOT_FOUND as empty config (first-PATCH lazy state) and proceeds in dry-run', async () => {
