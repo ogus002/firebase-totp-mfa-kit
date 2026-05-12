@@ -1,31 +1,30 @@
-# Manual setup (no CLI)
+# Configuration manuelle (sans CLI)
 
 <p align="center">
-  <strong>English</strong> ·
+  <a href="manual-setup.md">English</a> ·
   <a href="manual-setup.ko.md">한국어</a> ·
   <a href="manual-setup.ja.md">日本語</a> ·
   <a href="manual-setup.zh-CN.md">简体中文</a> ·
   <a href="manual-setup.es.md">Español</a> ·
   <a href="manual-setup.pt-BR.md">Português</a> ·
   <a href="manual-setup.de.md">Deutsch</a> ·
-  <a href="manual-setup.fr.md">Français</a>
+  <strong>Français</strong>
 </p>
 
-If you don't want to run the CLI, follow these steps. You'll do what the CLI
-would have done, manually.
+Si vous ne voulez pas exécuter la CLI, suivez ces étapes. Vous ferez manuellement ce que la CLI ferait automatiquement.
 
-## 1. Install dependencies
+## 1. Installer les dépendances
 
 ```bash
 npm install firebase qrcode
-npm install -D @types/qrcode  # if TypeScript
+npm install -D @types/qrcode  # si TypeScript
 ```
 
 Firebase JS SDK >= 10.6, React >= 18.
 
-## 2. Copy registry source
+## 2. Copier le registry source
 
-Clone or download this kit. Copy these directories into your project:
+Cloner ou télécharger ce kit. Copier ces répertoires dans votre projet :
 
 ```
 packages/cli/src/registry/components/  →  src/components/totp-mfa/components/
@@ -33,30 +32,30 @@ packages/cli/src/registry/hooks/       →  src/components/totp-mfa/hooks/
 packages/cli/src/registry/lib/         →  src/components/totp-mfa/lib/
 ```
 
-Rename `.source.ts` → `.ts`, `.source.tsx` → `.tsx`. (The CLI does this automatically.)
+Renommer `.source.ts` → `.ts`, `.source.tsx` → `.tsx`. (La CLI le fait automatiquement)
 
-The `.css` file copies as-is.
+Le fichier `.css` est copié tel quel.
 
-## 3. Server snippet (optional, recommended)
+## 3. Server snippet (optionnel, recommandé)
 
-Pick one based on your stack and copy to `src/server/`:
+Choisir un selon votre stack et copier dans `src/server/` :
 
 - `packages/cli/src/registry/server/express-mfa-middleware.source.ts`
 - `packages/cli/src/registry/server/cloud-functions-mfa.source.ts`
 - `packages/cli/src/registry/server/cloud-run-mfa.source.ts`
 - `packages/cli/src/registry/server/next-route-handler-mfa.source.ts`
 
-## 4. Wire into your app
+## 4. Intégrer dans votre app
 
 ### Next.js App Router
 
-Create `app/<area>/layout.tsx`:
+Créer `app/<area>/layout.tsx` :
 
 ```tsx
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
 import { MfaGuard } from '@/components/totp-mfa/components/MfaGuard';
-import { auth } from '@/lib/firebase';  // your Firebase auth instance
+import { auth } from '@/lib/firebase';  // votre instance Firebase auth
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -76,12 +75,12 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 }
 ```
 
-Create `app/<area>/login/page.tsx` — use `useMfaSignIn` hook and `<TotpSignInPrompt>`.
-Create `app/<area>/mfa-enroll/page.tsx` — use `<TotpEnroll>`.
+Créer `app/<area>/login/page.tsx` — utiliser le hook `useMfaSignIn` + `<TotpSignInPrompt>`.
+Créer `app/<area>/mfa-enroll/page.tsx` — utiliser `<TotpEnroll>`.
 
 ### Vite + React Router
 
-Create `src/components/totp-mfa/ProtectedRoute.tsx`:
+Créer `src/components/totp-mfa/ProtectedRoute.tsx` :
 
 ```tsx
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -106,18 +105,18 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Wrap your protected routes in `<ProtectedRoute>` inside your Router config.
+Envelopper vos routes protégées avec `<ProtectedRoute>` dans la config du Router.
 
-## 5. Enable Identity Platform TOTP
+## 5. Activer TOTP sur Identity Platform
 
 ```bash
 gcloud auth login
 gcloud config set project YOUR-PROJECT-ID
-# GET current config:
+# GET de la config actuelle :
 curl "https://identitytoolkit.googleapis.com/admin/v2/projects/YOUR-PROJECT-ID/config" \
   -H "Authorization: Bearer $(gcloud auth print-access-token)" \
   -H "X-Goog-User-Project: YOUR-PROJECT-ID"
-# Review existing mfa block. Merge in TOTP. Then PATCH:
+# Vérifier le bloc mfa existant. Fusionner TOTP. Puis PATCH :
 curl -X PATCH "https://identitytoolkit.googleapis.com/admin/v2/projects/YOUR-PROJECT-ID/config?updateMask=mfa" \
   -H "Authorization: Bearer $(gcloud auth print-access-token)" \
   -H "X-Goog-User-Project: YOUR-PROJECT-ID" \
@@ -125,14 +124,12 @@ curl -X PATCH "https://identitytoolkit.googleapis.com/admin/v2/projects/YOUR-PRO
   -d '{"mfa":{"state":"ENABLED","providerConfigs":[{"state":"ENABLED","totpProviderConfig":{"adjacentIntervals":1}}]}}'
 ```
 
-Verify with another GET. `mfa.state` should be `ENABLED` and `providerConfigs`
-should include `totpProviderConfig`.
+Vérifier avec un autre GET. `mfa.state` doit être `ENABLED` et `providerConfigs` doit inclure `totpProviderConfig`.
 
-## 6. Configure `.env.local`
+## 6. Configurer `.env.local`
 
-Copy `.env.example` and fill 6 Firebase config values + `NEXT_PUBLIC_TOTP_ISSUER`.
+Copier `.env.example` et remplir les 6 valeurs Firebase config + `NEXT_PUBLIC_TOTP_ISSUER`.
 
-## 7. Test
+## 7. Tester
 
-Run your dev server. Sign up with email/password, verify your email, then enroll
-TOTP. See `docs/troubleshooting.md` if anything fails.
+Lancer votre dev server. Sign up avec email/password, vérifier l'email, puis enroll TOTP. Voir `docs/troubleshooting.md` en cas d'échec.

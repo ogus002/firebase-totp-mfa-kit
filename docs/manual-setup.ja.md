@@ -1,9 +1,9 @@
-# Manual setup (no CLI)
+# 手動セットアップ (CLI なし)
 
 <p align="center">
-  <strong>English</strong> ·
+  <a href="manual-setup.md">English</a> ·
   <a href="manual-setup.ko.md">한국어</a> ·
-  <a href="manual-setup.ja.md">日本語</a> ·
+  <strong>日本語</strong> ·
   <a href="manual-setup.zh-CN.md">简体中文</a> ·
   <a href="manual-setup.es.md">Español</a> ·
   <a href="manual-setup.pt-BR.md">Português</a> ·
@@ -11,21 +11,20 @@
   <a href="manual-setup.fr.md">Français</a>
 </p>
 
-If you don't want to run the CLI, follow these steps. You'll do what the CLI
-would have done, manually.
+CLI を実行しない場合、次の手順に従ってください。CLI が自動で行う作業を手動で実施します。
 
-## 1. Install dependencies
+## 1. 依存関係のインストール
 
 ```bash
 npm install firebase qrcode
-npm install -D @types/qrcode  # if TypeScript
+npm install -D @types/qrcode  # TypeScript の場合
 ```
 
 Firebase JS SDK >= 10.6, React >= 18.
 
-## 2. Copy registry source
+## 2. Registry source のコピー
 
-Clone or download this kit. Copy these directories into your project:
+本 kit を clone または download。次のディレクトリをご自身のプロジェクトにコピー:
 
 ```
 packages/cli/src/registry/components/  →  src/components/totp-mfa/components/
@@ -33,30 +32,30 @@ packages/cli/src/registry/hooks/       →  src/components/totp-mfa/hooks/
 packages/cli/src/registry/lib/         →  src/components/totp-mfa/lib/
 ```
 
-Rename `.source.ts` → `.ts`, `.source.tsx` → `.tsx`. (The CLI does this automatically.)
+`.source.ts` → `.ts`、`.source.tsx` → `.tsx` にリネーム。(CLI が自動で行います)
 
-The `.css` file copies as-is.
+`.css` ファイルはそのままコピー。
 
-## 3. Server snippet (optional, recommended)
+## 3. Server snippet (オプション、推奨)
 
-Pick one based on your stack and copy to `src/server/`:
+stack に応じて 1 つ選択し `src/server/` にコピー:
 
 - `packages/cli/src/registry/server/express-mfa-middleware.source.ts`
 - `packages/cli/src/registry/server/cloud-functions-mfa.source.ts`
 - `packages/cli/src/registry/server/cloud-run-mfa.source.ts`
 - `packages/cli/src/registry/server/next-route-handler-mfa.source.ts`
 
-## 4. Wire into your app
+## 4. アプリへの組み込み
 
 ### Next.js App Router
 
-Create `app/<area>/layout.tsx`:
+`app/<area>/layout.tsx` を作成:
 
 ```tsx
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
 import { MfaGuard } from '@/components/totp-mfa/components/MfaGuard';
-import { auth } from '@/lib/firebase';  // your Firebase auth instance
+import { auth } from '@/lib/firebase';  // ご自身の Firebase auth インスタンス
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -76,12 +75,12 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 }
 ```
 
-Create `app/<area>/login/page.tsx` — use `useMfaSignIn` hook and `<TotpSignInPrompt>`.
-Create `app/<area>/mfa-enroll/page.tsx` — use `<TotpEnroll>`.
+`app/<area>/login/page.tsx` を作成 — `useMfaSignIn` hook + `<TotpSignInPrompt>` を使用。
+`app/<area>/mfa-enroll/page.tsx` を作成 — `<TotpEnroll>` を使用。
 
 ### Vite + React Router
 
-Create `src/components/totp-mfa/ProtectedRoute.tsx`:
+`src/components/totp-mfa/ProtectedRoute.tsx` を作成:
 
 ```tsx
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -106,18 +105,18 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Wrap your protected routes in `<ProtectedRoute>` inside your Router config.
+Router config 内で保護するルートを `<ProtectedRoute>` でラップ。
 
-## 5. Enable Identity Platform TOTP
+## 5. Identity Platform TOTP の有効化
 
 ```bash
 gcloud auth login
 gcloud config set project YOUR-PROJECT-ID
-# GET current config:
+# 現在の config を GET:
 curl "https://identitytoolkit.googleapis.com/admin/v2/projects/YOUR-PROJECT-ID/config" \
   -H "Authorization: Bearer $(gcloud auth print-access-token)" \
   -H "X-Goog-User-Project: YOUR-PROJECT-ID"
-# Review existing mfa block. Merge in TOTP. Then PATCH:
+# 既存の mfa ブロックを確認し TOTP をマージ。次に PATCH:
 curl -X PATCH "https://identitytoolkit.googleapis.com/admin/v2/projects/YOUR-PROJECT-ID/config?updateMask=mfa" \
   -H "Authorization: Bearer $(gcloud auth print-access-token)" \
   -H "X-Goog-User-Project: YOUR-PROJECT-ID" \
@@ -125,14 +124,12 @@ curl -X PATCH "https://identitytoolkit.googleapis.com/admin/v2/projects/YOUR-PRO
   -d '{"mfa":{"state":"ENABLED","providerConfigs":[{"state":"ENABLED","totpProviderConfig":{"adjacentIntervals":1}}]}}'
 ```
 
-Verify with another GET. `mfa.state` should be `ENABLED` and `providerConfigs`
-should include `totpProviderConfig`.
+別の GET で確認。`mfa.state` が `ENABLED` + `providerConfigs` に `totpProviderConfig` を含むこと。
 
-## 6. Configure `.env.local`
+## 6. `.env.local` 設定
 
-Copy `.env.example` and fill 6 Firebase config values + `NEXT_PUBLIC_TOTP_ISSUER`.
+`.env.example` をコピーして 6 つの Firebase config 値 + `NEXT_PUBLIC_TOTP_ISSUER` を記入。
 
-## 7. Test
+## 7. テスト
 
-Run your dev server. Sign up with email/password, verify your email, then enroll
-TOTP. See `docs/troubleshooting.md` if anything fails.
+dev server を起動。email/password で sign up + email verify + TOTP enroll。失敗時は `docs/troubleshooting.md` 参照。

@@ -1,5 +1,16 @@
 # Production Checklist
 
+<p align="center">
+  <strong>English</strong> ·
+  <a href="PRODUCTION-CHECKLIST.ko.md">한국어</a> ·
+  <a href="PRODUCTION-CHECKLIST.ja.md">日本語</a> ·
+  <a href="PRODUCTION-CHECKLIST.zh-CN.md">简体中文</a> ·
+  <a href="PRODUCTION-CHECKLIST.es.md">Español</a> ·
+  <a href="PRODUCTION-CHECKLIST.pt-BR.md">Português</a> ·
+  <a href="PRODUCTION-CHECKLIST.de.md">Deutsch</a> ·
+  <a href="PRODUCTION-CHECKLIST.fr.md">Français</a>
+</p>
+
 > Required reading before deploying firebase-totp-mfa to production.
 
 본 kit 은 alpha 단계 (Phase 2 launch 시점). 본 checklist 는 ship 전 통과 의무.
