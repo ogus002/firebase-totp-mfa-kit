@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "description": "Add Firebase TOTP MFA in 30 seconds. shadcn-style CLI + AI-friendly orchestration.",
   "license": "MIT",
-  "author": "<gh-user>",
-  "homepage": "https://github.com/<gh-user>/firebase-totp-mfa-kit",
+  "author": "ogus002",
+  "homepage": "https://github.com/ogus002/firebase-totp-mfa-kit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/<gh-user>/firebase-totp-mfa-kit.git",
+    "url": "https://github.com/ogus002/firebase-totp-mfa-kit.git",
     "directory": "packages/cli"
   },
   "type": "module",

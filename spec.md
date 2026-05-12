@@ -444,7 +444,7 @@ pnpm dev
 
 ## Demo first (Firebase 없이 미리 보기)
 ```bash
-git clone https://github.com/<gh-user>/firebase-totp-mfa-kit
+git clone https://github.com/ogus002/firebase-totp-mfa-kit
 cd firebase-totp-mfa-kit
 pnpm install
 pnpm --filter nextjs-playground dev
@@ -453,7 +453,7 @@ pnpm --filter nextjs-playground dev
 
 ## With AI (Claude Code / Codex)
 Run Claude Code in your project and say:
-> "Set up Firebase TOTP MFA in this project. Use github.com/<gh-user>/firebase-totp-mfa-kit. Run the CLI."
+> "Set up Firebase TOTP MFA in this project. Use github.com/ogus002/firebase-totp-mfa-kit. Run the CLI."
 
 Claude/Codex 가 CLI 호출 + 사용자 안내 + edge case fallback.
 
@@ -564,7 +564,7 @@ Claude/Codex 가 CLI 호출 + 사용자 안내 + edge case fallback.
 
 ### 13-1. AI 사용자 (Claude Code / Codex)
 1. 본인 프로젝트에서 AI 세션 시작
-2. 한 줄: "Set up Firebase TOTP MFA using github.com/<gh-user>/firebase-totp-mfa-kit. Run the CLI."
+2. 한 줄: "Set up Firebase TOTP MFA using github.com/ogus002/firebase-totp-mfa-kit. Run the CLI."
 3. AI 가 `npx firebase-totp-mfa add <framework>` 호출
 4. CLI 가 detect → diff → confirm → apply → enable → verify
 5. 사용자는 confirm 만 답변 + `.env.local` 작성 + Authenticator 앱 등록

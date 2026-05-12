@@ -1,5 +1,16 @@
 # Firebase TOTP MFA Kit
 
+<p align="center">
+  <strong>English</strong> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.zh-CN.md">简体中文</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.pt-BR.md">Português</a> ·
+  <a href="README.de.md">Deutsch</a> ·
+  <a href="README.fr.md">Français</a>
+</p>
+
 > **Firebase TOTP MFA in 10 minutes — with auditable diffs.**
 
 shadcn-style CLI + registry source install for Next.js / Vite / CRA.
@@ -19,7 +30,7 @@ pnpm dev
 ## Demo first (no Firebase config needed)
 
 ```bash
-git clone https://github.com/<gh-user>/firebase-totp-mfa-kit
+git clone https://github.com/ogus002/firebase-totp-mfa-kit
 cd firebase-totp-mfa-kit
 pnpm install
 pnpm dev:demo
@@ -30,7 +41,7 @@ pnpm dev:demo
 
 In your project, run an AI assistant and say:
 
-> Set up Firebase TOTP MFA in this project. Use github.com/<gh-user>/firebase-totp-mfa-kit and run the CLI.
+> Set up Firebase TOTP MFA in this project. Use github.com/ogus002/firebase-totp-mfa-kit and run the CLI.
 
 The assistant follows `CLAUDE.md` / `AGENTS.md` (fallback playbook) and triggers the deterministic CLI.
 

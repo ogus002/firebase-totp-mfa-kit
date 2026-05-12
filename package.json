@@ -4,14 +4,14 @@
   "private": true,
   "description": "Firebase Auth + Identity Platform TOTP MFA. Add it in 30 seconds. Own the code.",
   "license": "MIT",
-  "author": "<gh-user>",
-  "homepage": "https://github.com/<gh-user>/firebase-totp-mfa-kit",
+  "author": "ogus002",
+  "homepage": "https://github.com/ogus002/firebase-totp-mfa-kit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/<gh-user>/firebase-totp-mfa-kit.git"
+    "url": "https://github.com/ogus002/firebase-totp-mfa-kit.git"
   },
   "bugs": {
-    "url": "https://github.com/<gh-user>/firebase-totp-mfa-kit/issues"
+    "url": "https://github.com/ogus002/firebase-totp-mfa-kit/issues"
   },
   "keywords": [
     "firebase",

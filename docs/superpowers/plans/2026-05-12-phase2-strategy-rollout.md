@@ -1134,12 +1134,12 @@ Open `packages/cli/package.json`. Verify:
 - `version`: `"0.1.0-alpha.0"` (or current)
 - `description`: 짧고 명확한 한 문장 (예: `"Firebase TOTP MFA in 10 minutes — shadcn-style CLI + registry source install"`)
 - `license`: `"MIT"`
-- `repository`: GitHub URL (사용자가 결정 — 현재 `<gh-user>` placeholder)
+- `repository`: GitHub URL (사용자가 결정 — 현재 `ogus002` placeholder)
 - `keywords`: `["firebase", "totp", "mfa", "2fa", "identity-platform", "shadcn-style", "cli", "nextjs", "react"]`
 - `homepage`: GitHub URL
 - `bugs`: GitHub Issues URL
 
-If `<gh-user>` placeholder 남아있으면 → 사용자 확정 GitHub username 으로 일괄 치환 (Phase 2 의 가장 첫 작업, plan 외부 결정).
+If `ogus002` placeholder 남아있으면 → 사용자 확정 GitHub username 으로 일괄 치환 (Phase 2 의 가장 첫 작업, plan 외부 결정).
 
 - [ ] **Step 2: Build + dry-run publish**
 

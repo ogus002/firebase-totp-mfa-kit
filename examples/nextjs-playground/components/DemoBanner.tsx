@@ -18,7 +18,7 @@ export function DemoBanner(): JSX.Element | null {
     >
       <strong>Demo Mode</strong> — UI/UX preview. No real authentication.{' '}
       <a
-        href="https://github.com/your-gh-user/firebase-totp-mfa-kit#real-mode"
+        href="https://github.com/ogus002/firebase-totp-mfa-kit#real-mode"
         style={{ color: '#92400e', textDecoration: 'underline' }}
       >
         Connect Firebase in 5 min →
