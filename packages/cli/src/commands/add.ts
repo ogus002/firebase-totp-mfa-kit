@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import pc from 'picocolors';
 import fg from 'fast-glob';
@@ -12,6 +13,7 @@ import {
   summarize,
 } from '../utils/diff-and-confirm.js';
 import { findRegistryRoot } from '../utils/registry-paths.js';
+import { writeRegistryMetadata } from '../utils/registry-version.js';
 import { planNextAppRouter } from '../codemods/next-app-router.js';
 import { planNextPagesRouter } from '../codemods/next-pages-router.js';
 import { planViteReact } from '../codemods/vite-react.js';
@@ -68,7 +70,8 @@ export async function runAdd(framework: string | undefined, opts: AddOptions): P
   const changes: FileChange[] = [];
 
   // 2a. Registry files (components / hooks / lib)
-  changes.push(...planRegistryCopy(opts));
+  const registryPlan = planRegistryCopy(opts);
+  changes.push(...registryPlan.changes);
 
   // 2b. Codemod (framework-specific)
   changes.push(
@@ -127,6 +130,11 @@ export async function runAdd(framework: string | undefined, opts: AddOptions): P
     console.log(pc.green(`  ✓ ${c.path}`));
   }
 
+  // 5b. Write .firebase-totp-mfa.json metadata (registry source → dest mapping for `update`)
+  const cliVersion = readCliVersion();
+  writeRegistryMetadata(opts.cwd, cliVersion, registryPlan.installed);
+  console.log(pc.dim(`  ✓ Wrote .firebase-totp-mfa.json (registry version ${cliVersion})`));
+
   // 6. Postscript
   console.log('');
   console.log(pc.bold('Next steps:'));
@@ -155,9 +163,15 @@ function normalizeFramework(fw: string | Framework): Framework {
   return (map[fw] ?? fw) as Framework;
 }
 
-function planRegistryCopy(opts: AddOptions): FileChange[] {
+interface RegistryPlan {
+  changes: FileChange[];
+  installed: { source: string; dest: string }[];
+}
+
+function planRegistryCopy(opts: AddOptions): RegistryPlan {
   const registry = findRegistryRoot();
   const changes: FileChange[] = [];
+  const installed: { source: string; dest: string }[] = [];
 
   // copy components + css
   const components = fg.sync(['components/**/*'], { cwd: registry, onlyFiles: true });
@@ -184,9 +198,20 @@ function planRegistryCopy(opts: AddOptions): FileChange[] {
     } else {
       changes.push({ path: destPath, kind: 'create', newContent: body });
     }
+    // Track every registry file in the installed manifest — even 'skip' (identical) entries —
+    // because `update` needs the full source→dest mapping regardless of current diff state.
+    installed.push({ source: rel.replace(/\\/g, '/'), dest: destPath });
   }
 
-  return changes;
+  return { changes, installed };
+}
+
+function readCliVersion(): string {
+  const here = dirname(fileURLToPath(import.meta.url));
+  // dist/commands/add.js → ../../package.json. src/commands/add.ts (tsx run) → ../../package.json.
+  const pkgPath = join(here, '..', '..', 'package.json');
+  const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { version?: string };
+  return pkg.version ?? '0.0.0';
 }
 
 function planCodemod(
