@@ -245,7 +245,7 @@ Phase 2 launch 후 (validation artifact 카테고리):
 - shadcn-style registry pattern ✓ (사용자 owns code)
 - Firebase IDP Admin REST API ✓ (CLI wraps)
 - otplib RFC 6238 ✓ (Demo + Real 동일 알고리즘)
-- iUPPITER admin TOTP 경험 ✓ (격리 isolation 유지)
+- 운영자의 prior production codebase 의 admin TOTP 경험 ✓ (origin 격리 isolation 유지)
 - shadcn-ui CLI v4 (agents support, dry-run, diff) — pattern leverage
 - Phase 1 자산 (CLI alpha 코드 / registry 12 source files / docs 11개) — 90% 그대로 유지
 
@@ -261,7 +261,7 @@ Phase 2 launch 후 (validation artifact 카테고리):
 | 6 | Clerk/Supabase/Auth.js 경쟁 | HIGH | "Staying on Firebase only" disclaimer | 2 must |
 | 7 | Search dominance (Firebase docs #1) | MEDIUM | SEO long-tail pain pages 3-5 | 2 nice |
 | 8 | Demo abuse / phishing template | MEDIUM | watermark + abuse note + fixed creds | (이미 spec:304-318 처리됨) |
-| 9 | iUPPITER leakage (manual grep only) | MEDIUM | CI brand denylist gate | 2 nice |
+| 9 | Origin branding leakage (manual grep only) | MEDIUM | CI brand denylist gate | 2 nice |
 | 10 | npm package-name risk | MEDIUM | stub publish (이름 확보) | 2 must (소소한 ADD) |
 
 ## 10. Dream State Delta (12-month)

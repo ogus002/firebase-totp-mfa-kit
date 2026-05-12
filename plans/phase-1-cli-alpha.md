@@ -176,7 +176,7 @@ spec 부록 A-2 의 격리 규칙 적용. 모든 source 파일은 `.source.tsx` 
 - CLI 가 detect → diff → confirm → apply
 - 사용자(나) = confirm 만 답변
 - 결과: dogfood-test 에 enroll/login/protected/recovery 모두 자동 적용
-- **iUPPITER 노출 0 재확인** (dogfood-test 도 grep)
+- **origin branding 노출 0 재확인** (dogfood-test 도 grep, 운영자 internal denylist 기준)
 - Claude 가 절대 금지 규칙 5개 준수 (.env 안 읽음 / package script 안 실행 등)
 
 ## 2. 의존성 / 순서

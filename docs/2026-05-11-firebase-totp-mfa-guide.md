@@ -1,7 +1,7 @@
 # Firebase Identity Platform TOTP MFA — 재사용 가이드
 
 > 모든 GCP/Firebase 프로젝트에 동일하게 적용 가능.
-> 작성: 2026-05-11 (iUPPITER admin 도입 케이스 기반).
+> Rosetta-stone 기술 가이드 (작성: 2026-05-11). Identity Platform REST 활성 + TOTP PATCH + FE 구현 전 흐름.
 
 ## 1. 적용 가능 환경
 

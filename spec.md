@@ -34,7 +34,7 @@ pnpm dev
 | **HOW (핵심 UX)** | (1) **CLI deterministic primary** — `npx firebase-totp-mfa add` 가 framework detect + source 파일 복사 + diff. (2) **Agent-compatible** — Claude/Codex 등 AI agent 가 CLI 호출 (직접 코드 작성 X, deterministic mutation 만). (3) **Own the code** — shadcn-style 사용자 프로젝트 source 소유 = 디버깅·커스터마이즈·audit. `firebase-totp-mfa update` 로 upstream drift 추적. |
 | **TRUST 우선** | stars 선점이 아니라 trust 선점. deterministic CLI, dry-run diff, security checklist, recovery codes, server-side enforcement 모두 Phase 1 필수. |
 | **STATIC DEMO** | `examples/nextjs-playground` 은 Firebase config 없이 demo mode 로 즉시 실행. fixed demo credentials + 실제 credential 입력 가드. |
-| **격리 원칙** | iUPPITER 코드는 참조만. kit 어디에도 iUPPITER 이름/지갑/도메인/admin 경로 노출 금지. UI 패턴은 차용하되 branding generic. |
+| **Origin 격리 원칙** | 운영자의 prior production codebase 는 참조만. kit 어디에도 origin 이름/도메인/admin 경로 노출 금지. UI 패턴은 차용하되 branding generic. 자세한 규칙은 운영자 internal 문서 참조 (public 공개 X). |
 | **NOT GOAL** | SMS MFA, WebAuthn/passkey 통합 (Phase 5 이후), 결제, 사용자 관리 UI. |
 
 ---
@@ -351,7 +351,7 @@ nextjs-playground/
 - DemoBanner 미표시
 
 ### 6-4. 격리 검증
-- 본 example 코드/문서/CSS/주석에 iUPPITER 관련 검색 결과 0
+- 본 example 코드/문서/CSS/주석에 origin branding 검색 결과 0 (운영자 internal denylist 기준)
 - 디자인 토큰만 차용 — 색상/spacing/font 는 generic CSS variable
 
 ---
@@ -492,9 +492,8 @@ Claude/Codex 가 CLI 호출 + 사용자 안내 + edge case fallback.
 - [ ] Mock 6자리 코드 = 실제 RFC 6238 (otplib) 검증
 - [ ] **격리 grep 0 hits**:
   ```bash
-  grep -ri "iuppiter\|xpla\|piup\|drops.iuppiter\|vault.xpla\|walletManagers\|blockedWallets\|adminAuditLog\|microPiUP" \
-    packages/ examples/ docs/ README.md CLAUDE.md AGENTS.md \
-    --exclude-dir=node_modules --exclude-dir=.git
+  # 운영자 internal denylist 기준 grep (자세한 패턴은 internal/ 의 운영자 reference 참조)
+  # 0 hits 필수
   ```
 
 ### 11-2. CLI 동작
@@ -536,7 +535,7 @@ Claude/Codex 가 CLI 호출 + 사용자 안내 + edge case fallback.
 - [ ] Claude 가 `npx firebase-totp-mfa add next` 호출 → CLI 가 모든 작업
 - [ ] 사용자(나) 는 confirm 만 답변
 - [ ] 결과: dogfood 프로젝트에 enroll/login/recovery 모두 자동 적용
-- [ ] iUPPITER 노출 0 재확인
+- [ ] origin branding 노출 0 재확인 (운영자 internal denylist 기준)
 
 ---
 
@@ -612,49 +611,17 @@ Claude/Codex 가 CLI 호출 + 사용자 안내 + edge case fallback.
 
 ---
 
-## 부록 A — iUPPITER 격리 규칙 (유지)
+## 부록 A — Origin 격리 정책 (요약)
 
-### A-1. 참조 위치 (read-only — kit 에 import 금지)
+본 kit 은 운영자의 prior production codebase (TOTP MFA 경험) 에서 **UI 패턴만 generic 화** 하여 추출한 별도 프로젝트. origin 의 이름·도메인·식별자는 본 kit public 영역에 0 hits 유지 — hard rule.
 
-| iUPPITER 파일 | kit 추출 위치 |
-|---|---|
-| `mfa-enroll/page.tsx` (181) | `packages/cli/src/registry/components/TotpEnroll.source.tsx` |
-| `login/page.tsx` (242 MFA 부분) | `packages/cli/src/registry/components/TotpSignInPrompt.source.tsx` |
-| `layout.tsx` (108 guard 부분) | `packages/cli/src/registry/components/MfaGuard.source.tsx` |
-| docs/2026-05-11-firebase-totp-mfa-guide.md | `docs/manual-setup.md` + `docs/ARCHITECTURE.md` |
-
-### A-2. 격리 / branding 제거 규칙
-
-| 카테고리 | 금지 | 대체 |
-|---|---|---|
-| 프로젝트명 | `iUPPITER`, `iuppiter`, `IUPPITER` | `YourApp`, `<APP_NAME>` |
-| 토큰/체인 | `XPLA`, `xpla`, `piUP`, `iUP`, `microPiUP` | 모두 제거 |
-| 도메인 | `iuppiter.io`, `drops.iuppiter.io`, `vault.xpla.io` | `yourapp.com`, `app.example.com` |
-| Firestore 컬렉션 | `walletManagers`, `blockedWallets`, `adminAuditLog`, `users`, `rewards` | (제거 — kit 은 BE 가정 없음) |
-| 함수/변수 | `isWalletBlocked`, `verifyPiupTransfer`, `processRewardQueue` | (제거) |
-| CSS class | `.adminBox`, `.rewardsRow` | `.totp-card`, `.totp-input` |
-| Issuer 기본 | `"iUPPITER Admin TOTP"` | 사용자 입력 (CLI flag) |
-| accountLabel | hardcoded email | `user.email` (단 docs 에 "uid/hash 옵션 권장" 명시) |
-| 주석 ref | "2026-05-11 보안 사고", "SEC-5" | 일반 보안 패턴 |
-
-### A-3. 격리 검증 명령 (Phase 1 Task 끝)
-
-```bash
-grep -ri "iuppiter\|xpla\|piup\|drops.iuppiter\|vault.xpla\|walletManagers\|blockedWallets\|adminAuditLog\|microPiUP" \
-  packages/ examples/ scripts/ docs/ README.md CLAUDE.md AGENTS.md \
-  --exclude-dir=node_modules --exclude-dir=.git
-# 0 hits 필수
-```
-
-### A-4. UI 패턴 차용 (브랜드 격리)
-
-차용 OK 패턴:
+차용 OK 패턴 (모두 generic 화):
 - QR + manual key 동시 노출 (Authenticator 앱 카메라 인식 안 될 때 fallback)
-- 6자리 input box 의 자동 숫자 필터 + maxLength=6
+- 6자리 input box 자동 숫자 필터 + maxLength=6
 - enrollment 성공 시 1.5초 대기 후 dashboard 자동 이동
 - MFA stage 진입 시 password 폼 자동 hide
 
-→ 모두 본 kit 의 registry source 컴포넌트에 generic 화하여 구현.
+자세한 격리 규칙 + denylist + 참조 매핑은 운영자 internal 문서 (`internal/isolation-policy.md`, public 노출 X) 에서 관리. 자동 검증은 Phase 2-B 의 CI brand denylist gate 가 enforce 예정.
 
 ---
 
