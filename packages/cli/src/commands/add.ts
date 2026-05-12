@@ -1,5 +1,4 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import pc from 'picocolors';
 import fg from 'fast-glob';
@@ -30,6 +29,8 @@ export interface AddOptions {
   dryRun: boolean;
   yes: boolean;
   cwd: string;
+  /** CLI's own version, supplied by the index.ts entry point. Stamped into .firebase-totp-mfa.json metadata. */
+  cliVersion: string;
 }
 
 const DEST_COMPONENTS_DIR = 'src/components/totp-mfa';
@@ -131,9 +132,14 @@ export async function runAdd(framework: string | undefined, opts: AddOptions): P
   }
 
   // 5b. Write .firebase-totp-mfa.json metadata (registry source → dest mapping for `update`)
-  const cliVersion = readCliVersion();
-  writeRegistryMetadata(opts.cwd, cliVersion, registryPlan.installed);
-  console.log(pc.dim(`  ✓ Wrote .firebase-totp-mfa.json (registry version ${cliVersion})`));
+  try {
+    writeRegistryMetadata(opts.cwd, opts.cliVersion, registryPlan.installed);
+    console.log(pc.dim(`  ✓ Wrote .firebase-totp-mfa.json (registry version ${opts.cliVersion})`));
+  } catch (e) {
+    console.log(pc.yellow(`  ⚠ Could not write .firebase-totp-mfa.json: ${(e as Error).message}`));
+    console.log(pc.yellow('    Registry files were copied successfully, but `update` will not work until metadata is recovered.'));
+    console.log(pc.dim('    Recover by re-running `firebase-totp-mfa add` once the underlying issue is fixed.'));
+  }
 
   // 6. Postscript
   console.log('');
@@ -204,14 +210,6 @@ function planRegistryCopy(opts: AddOptions): RegistryPlan {
   }
 
   return { changes, installed };
-}
-
-function readCliVersion(): string {
-  const here = dirname(fileURLToPath(import.meta.url));
-  // dist/commands/add.js → ../../package.json. src/commands/add.ts (tsx run) → ../../package.json.
-  const pkgPath = join(here, '..', '..', 'package.json');
-  const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { version?: string };
-  return pkg.version ?? '0.0.0';
 }
 
 function planCodemod(

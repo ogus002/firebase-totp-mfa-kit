@@ -9,12 +9,18 @@ import { runUpdate } from './commands/update.js';
 import { runDoctor } from './commands/doctor.js';
 import { runVerify } from './commands/verify.js';
 
+// Read CLI version once at entry; pass to subcommands that need it (avoids each command re-resolving its bundled location).
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const cliPkgJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8')) as { version?: string };
+const CLI_VERSION: string = cliPkgJson.version ?? '0.0.0';
+
 const program = new Command();
 
 program
   .name('firebase-totp-mfa')
   .description('Add Firebase TOTP MFA in 30 seconds. shadcn-style CLI.')
-  .version('0.0.0');
+  .version(CLI_VERSION);
 
 program
   .command('add [framework]')
@@ -37,6 +43,7 @@ program
       dryRun: opts['dryRun'] === true,
       yes: opts['yes'] === true,
       cwd: process.cwd(),
+      cliVersion: CLI_VERSION,
     });
     process.exit(code);
   });
@@ -68,14 +75,10 @@ program
   .description('Check if local registry source files diverged from the kit (dry-run by default in alpha)')
   .option('--apply', 'Apply updates (Phase 2.1 — not yet implemented). Default = dry-run.', false)
   .action(async (opts: Record<string, unknown>) => {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const pkgJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
-
     const result = await runUpdate({
       projectRoot: process.cwd(),
       apply: opts['apply'] === true,
-      registryVersion: pkgJson.version,
+      registryVersion: CLI_VERSION,
     });
     process.exit(result.exitCode);
   });
