@@ -6,6 +6,7 @@ import {
   mergeTotpIntoMfa,
   hasTotpEnabled,
   type MfaConfig,
+  type ProjectConfig,
 } from '../utils/identity-platform.js';
 import { confirm } from '../utils/diff-and-confirm.js';
 
@@ -48,17 +49,25 @@ export async function runEnable(opts: EnableOptions): Promise<number> {
   // Step 2 — GET current config
   console.log('');
   console.log(pc.dim('→ Fetching current Identity Platform config…'));
-  let currentCfg;
+  let currentCfg: ProjectConfig = {};
   try {
     currentCfg = await getProjectConfig(opts.project);
   } catch (e) {
-    console.log(pc.red(`✗ ${(e as Error).message}`));
-    console.log('');
-    console.log('Common causes:');
-    console.log(`  · Project ${pc.cyan(opts.project)} does not exist or has no Identity Platform`);
-    console.log(`  · Active account ${pc.cyan(account)} lacks ${pc.cyan('roles/identityplatform.admin')}`);
-    console.log(`  · Identity Platform not upgraded — see https://console.firebase.google.com/project/${opts.project}/authentication`);
-    return 2;
+    const msg = (e as Error).message;
+    // 404 CONFIGURATION_NOT_FOUND = first-PATCH lazy state (admin/v2 not yet initialized)
+    // Treat as empty mfa config and continue — PATCH will be first-init
+    if (msg.includes('404') && msg.includes('CONFIGURATION_NOT_FOUND')) {
+      console.log(pc.yellow('⚠ MFA config not yet initialized — first PATCH will create it.'));
+      currentCfg = {};
+    } else {
+      console.log(pc.red(`✗ ${msg}`));
+      console.log('');
+      console.log('Common causes:');
+      console.log(`  · Project ${pc.cyan(opts.project)} does not exist or has no Identity Platform`);
+      console.log(`  · Active account ${pc.cyan(account)} lacks ${pc.cyan('roles/identityplatform.admin')}`);
+      console.log(`  · Identity Platform not upgraded — see https://console.firebase.google.com/project/${opts.project}/authentication`);
+      return 2;
+    }
   }
   const currentMfa = currentCfg.mfa;
   console.log(pc.green('✓ current config fetched'));
