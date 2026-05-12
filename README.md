@@ -1,8 +1,9 @@
 # Firebase TOTP MFA Kit
 
-> Firebase Auth + Identity Platform TOTP MFA. **Add it in 30 seconds. Own the code.**
+> **Firebase TOTP MFA in 10 minutes — with auditable diffs.**
 
-shadcn-style CLI + registry source install for Next.js / Vite / CRA. AI-friendly (Claude Code / Codex fallback playbook).
+shadcn-style CLI + registry source install for Next.js / Vite / CRA.
+**CLI primary · Own the code · Agent-compatible (Claude Code / Codex).**
 
 ## Quick start
 
@@ -36,15 +37,20 @@ The assistant follows `CLAUDE.md` / `AGENTS.md` (fallback playbook) and triggers
 ## Why
 
 - **SMS cost = 0** — official Firebase TOTP, free up to 3,000 DAU on Spark plan
-- **Own the code** — shadcn-style source install. Debug / customize / audit yourself
+- **Own the code** — shadcn-style source install. Debug / customize / audit yourself. `firebase-totp-mfa update` to track upstream drift.
 - **Officially backed** — Identity Platform, not custom auth
 - **Recovery codes + server enforcement** — Phase 1 includes both
+- **Agent-compatible** — Claude Code / Codex follow `CLAUDE.md` / `AGENTS.md` playbook; CLI is the deterministic mutation layer (LLM trust boundary)
+
+**Use this only if you are staying on Firebase Auth.** Migrating to Clerk / Supabase / Auth.js / Stack Auth → use their native MFA. See [`docs/PRODUCTION-CHECKLIST.md`](docs/PRODUCTION-CHECKLIST.md) §6.
 
 ## Status
 
-- 🚧 Phase 1 (CLI alpha) in progress
-- See `spec.md` for full design.
-- See `plans/phase-1-cli-alpha.md` for current build plan.
+- ✅ **Phase 1 (CLI alpha) complete** — code + GCP integration verified
+- 🚧 **Phase 2 (public launch readiness) in progress** — `update/diff` command, `PRODUCTION-CHECKLIST.md`, npm stub publish, validation artifact
+- See [`spec.md`](spec.md) for full design (v3, 2026-05-12)
+- See [`docs/superpowers/plans/2026-05-12-phase2-strategy-rollout.md`](docs/superpowers/plans/2026-05-12-phase2-strategy-rollout.md) for current Phase 2 plan
+- See [`docs/PRODUCTION-CHECKLIST.md`](docs/PRODUCTION-CHECKLIST.md) before deploying to production
 
 ## License
 

@@ -1,9 +1,9 @@
-# Claude Code Orchestration — firebase-totp-mfa-kit
+# Claude Code Agent Compatibility Playbook — firebase-totp-mfa-kit
 
-> **The CLI is primary. This file is the AI fallback.**
-> The deterministic `firebase-totp-mfa` CLI does framework detect, source install,
+> **CLI is primary. Claude calls the deterministic CLI — does not write auth code directly.**
+> The `firebase-totp-mfa` CLI does framework detect, source install,
 > codemod, and Identity Platform enable. Claude assists when the CLI fails or the
-> user needs custom integration.
+> user needs custom integration. The "절대 금지" 5 hard rules below exist because LLMs touching auth code is the primary trust hazard for this kit; every mutation goes through the CLI.
 
 ## Recommended entry
 
