@@ -2,7 +2,9 @@
 import { detectAuthMode } from '@/lib/auth-mode';
 
 export function DemoBanner(): JSX.Element | null {
-  const mode = typeof window === 'undefined' ? null : detectAuthMode();
+  // detectAuthMode() reads NEXT_PUBLIC_* env vars — inlined at build time, identical on server and client.
+  // No window check needed; using one created a hydration mismatch (server rendered null, client rendered the banner).
+  const mode = detectAuthMode();
   if (mode !== 'demo') return null;
   return (
     <div
