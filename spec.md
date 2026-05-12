@@ -1,8 +1,8 @@
 # Firebase TOTP MFA Kit — Spec (v2, 2026-05-12)
 
 > Firebase Auth + Identity Platform TOTP MFA, drop-in for any React project.
-> **Add it in 30 seconds. Own the code.**
-> shadcn-style CLI + registry source install. Claude/Codex = fallback orchestration.
+> **Firebase TOTP MFA in 10 minutes — with auditable diffs.**
+> shadcn-style CLI · Own the code · Agent-compatible (Claude Code / Codex).
 
 ---
 
@@ -21,7 +21,7 @@ pnpm dev
 # → /admin/login → email/password → MFA prompt → 6자리 코드 → /admin/dashboard
 ```
 
-→ **약 10분**. AI 사용자는 Claude/Codex 에게 "이 kit 으로 TOTP MFA 설치해줘" 한 줄로 위 흐름을 트리거 (단 CLI 가 모든 deterministic 작업 수행).
+→ **약 10-minute install + 30-second code insertion**. CLI 가 모든 deterministic 작업 수행. AI 사용자 (Claude Code / Codex) 가 본 kit 의 `CLAUDE.md` / `AGENTS.md` agent-compatibility playbook 을 따라 CLI 호출 — AI 가 직접 코드 작성 X (LLM trust 장벽 대응).
 
 ---
 
@@ -31,7 +31,7 @@ pnpm dev
 |---|---|
 | **WHY** | Firebase TOTP MFA 는 Identity Platform 콘솔 GUI 미노출 / `auth/requires-recent-login` / 접근성 / recovery / cross-platform 등 함정이 많음. 한 번 풀어두면 재사용 가치 큼. |
 | **WHO** | Firebase Auth (email/password) 쓰는 React 프로젝트 (Next.js / Vite / CRA / RN Phase 3). |
-| **HOW (핵심 UX)** | (1) `npx firebase-totp-mfa add` CLI 가 deterministic 으로 framework detect + source 파일 복사 + diff. (2) Claude/Codex 는 CLI 호출 + 사용자 안내 + edge case fallback. (3) 사용자가 자기 프로젝트의 코드 소유 = 디버깅 + 커스터마이즈 가능. |
+| **HOW (핵심 UX)** | (1) **CLI deterministic primary** — `npx firebase-totp-mfa add` 가 framework detect + source 파일 복사 + diff. (2) **Agent-compatible** — Claude/Codex 등 AI agent 가 CLI 호출 (직접 코드 작성 X, deterministic mutation 만). (3) **Own the code** — shadcn-style 사용자 프로젝트 source 소유 = 디버깅·커스터마이즈·audit. `firebase-totp-mfa update` 로 upstream drift 추적. |
 | **TRUST 우선** | stars 선점이 아니라 trust 선점. deterministic CLI, dry-run diff, security checklist, recovery codes, server-side enforcement 모두 Phase 1 필수. |
 | **STATIC DEMO** | `examples/nextjs-playground` 은 Firebase config 없이 demo mode 로 즉시 실행. fixed demo credentials + 실제 credential 입력 가드. |
 | **격리 원칙** | iUPPITER 코드는 참조만. kit 어디에도 iUPPITER 이름/지갑/도메인/admin 경로 노출 금지. UI 패턴은 차용하되 branding generic. |
@@ -217,6 +217,32 @@ firebase-totp-mfa-kit/
 - 시나리오 5개 list (enroll / sign-in / wrong code / recovery / lockout)
 - 각 시나리오의 expected behavior
 
+### 4-5. `firebase-totp-mfa update`
+
+**용도**: 본 kit 의 registry source 가 사용자 프로젝트의 local copy 와 diverge 했는지 확인 (shadcn-style copy 의 own-code divergence 대응)
+
+**flags**:
+- `--apply` — Phase 2.1 에 per-file diff + confirm + overwrite. **현재 alpha = 미구현 (placeholder, exit 2)**. default = dry-run mode.
+
+**흐름** (dry-run, current alpha):
+1. **Read** — 사용자 프로젝트의 `.firebase-totp-mfa.json` metadata (CLI add 시 작성됨)
+2. **Compare** — local version ↔ CLI 의 registry version
+3. **Diff** — 각 file 별 변경 상태 (`status: modified | missing | added`) 표시 (Phase 2.0 = 모든 entry 가 `modified` flag, 2.1 부터 per-file hash diff)
+4. **Report** — divergence list + 향후 apply 흐름 안내
+
+**registry version metadata** (`.firebase-totp-mfa.json` — `add` 가 작성, `update` 가 read):
+```json
+{
+  "version": "0.0.1",
+  "installed": [
+    { "source": "components/TotpEnroll.source.tsx", "dest": "src/components/totp-mfa/components/TotpEnroll.tsx" }
+  ],
+  "installedAt": "2026-05-13T00:00:00.000Z"
+}
+```
+
+본 metadata 가 update workflow 의 기반. `packages/cli/src/utils/registry-version.ts` 가 read/write 의 single source of truth (defensive — 누락/malformed/invalid shape 시 null 반환).
+
 ---
 
 ## 5. Identity Platform Enable — 5-step Safe Flow (codex §2 #5)
@@ -330,7 +356,7 @@ nextjs-playground/
 
 ---
 
-## 7. Claude / Codex Orchestration — **Fallback Layer** (codex §2 #2)
+## 7. Claude / Codex Orchestration — **Agent Compatibility Layer** (codex §2 #2)
 
 ### 7-1. CLI 가 primary, AI 는 fallback
 
@@ -449,7 +475,7 @@ Claude/Codex 가 CLI 호출 + 사용자 안내 + edge case fallback.
 | **0 — Spec** | 본 문서 + plans + internal | 완료 |
 | **1 — CLI alpha (private)** | CLI (`add` + `enable` + `doctor` + `verify`) + registry source 파일 (컴포넌트 + 훅 + recovery + server snippets) + nextjs-playground (Demo + Real) + 핵심 docs (SECURITY / ACCESSIBILITY / RECOVERY / SERVER-MFA-VERIFY / OBSERVABILITY / i18n / claude-orchestration / troubleshooting) + dogfood 검증 | **20-22h ≈ 2-3일** |
 | **2 — Public release** | LICENSE / GitHub Actions CI / changesets / npm publish / README polish / Demo hosting 배포 | 1-2일 |
-| **3 — RN adapter** | RN registry source + Expo playground + RN-specific docs | 2-3일 |
+| **3 — RN adapter (conditional)** | RN registry source + Expo playground + RN-specific docs. **조건: Phase 2 traction 검증 후 (5 case studies + 3 Pro pay willing user)** | 2-3일 |
 | **4 — Advanced** | Recovery UI 고급 (다운로드/인쇄/이메일) + i18n 다국어 + SAML/OIDC 호환 | 3-5일 |
 | **5 — Future** | Passkey/WebAuthn 통합 + Pro tier 기능 + MCP 서버 (사용자 요청 시) | 별도 |
 
@@ -480,6 +506,9 @@ Claude/Codex 가 CLI 호출 + 사용자 안내 + edge case fallback.
 - [ ] `--firebase-export` flag 로 자동 detect 실패 시 fallback
 
 ### 11-3. Real mode 검증 (별도 GCP project)
+
+> ⚠️ **alpha 한계** (2026-05-12 발견): `examples/nextjs-playground` 의 `login/page.tsx` / `mfa-enroll/page.tsx` / `recovery/page.tsx` 의 **real mode 분기는 stub 상태**. 코드 comment "see Task 8 dogfood" 가 implementation gap 흔적. Real flow 검증은 **Phase 3 의 dogfood path** (빈 Next.js + CLI registry copy) 가 흡수. Phase 2 launch 까지 playground real mode 보완은 NOT in scope (codex SCOPE REDUCTION).
+
 - [ ] `.env.local` 채움 → real 모드 자동 전환
 - [ ] login → email/password → MFA prompt → 6자리 코드 → dashboard
 - [ ] enrolledFactors 없는 사용자가 protected 진입 시 enroll page redirect
@@ -525,6 +554,8 @@ Claude/Codex 가 CLI 호출 + 사용자 안내 + edge case fallback.
 | **`adjacentIntervals` 기본 1 (보안 권장)** | 공식 0-10 범위. `5` 는 시계 어긋남 관대하지만 보안 tradeoff. CLI 가 default 1 + 사용자 명시 시 5 까지 허용. |
 | **SMS MFA 동시 사용** | 본 kit 는 TOTP only. SMS hint 다중 처리는 Phase 5. |
 | **BE token MFA 검증** | client guard 는 보안 경계 아님. server-side verify snippets 4개 Phase 1 필수. docs/SERVER-MFA-VERIFY.md. |
+| **Passkey/WebAuthn displacement (24-month horizon)** | FIDO/Google/Apple passkey 도입 가속 (Google passkey-first for own accounts). TOTP-only 가 24개월 내 legacy 인식 가능성. **본 kit 의 Phase 5 = TOTP backup factor 유지 + passkey first-class adapter**. |
+| **Use only if staying on Firebase Auth** | Auth.js / NextAuth / Clerk / Supabase / Stack Auth / Better Auth 사용자 → native MFA 사용. 본 kit 은 Firebase Auth 잔존자 (또는 Firebase Identity Platform 신규 사용자) 용. docs/PRODUCTION-CHECKLIST.md §6 참조. |
 | **Passkey / WebAuthn** | Phase 5 이후. TOTP-only 가 passkey 흐름에 밀릴 가능성 인정. |
 
 ---
@@ -575,7 +606,9 @@ Claude/Codex 가 CLI 호출 + 사용자 안내 + edge case fallback.
 | BE middleware | docs snippet 4개 (Phase 1 필수) |
 | Demo mode | Thin adapter + fixed credentials + real input 가드 |
 | Identity Platform enable | 5-step safe (`get→diff→confirm→patch→verify`) |
-| AI orchestration | Fallback layer (CLI primary) |
+| AI orchestration | Agent compatibility layer (CLI primary, AI 가 CLI 호출) — Hero 가 아닌 sub-claim. LLM trust 장벽 대응 |
+| Sustainability statement | 1-person operator. Lucia (March 2025 deprecated, 4년 운영 후 burn-out) 경고 모델. Phase 4 Pro tier launch = 최소 3명 paying user 명시 요청 후만 build. fork 권장 |
+| Phase 2 reframe (2026-05-12 v3) | "30s" headline 제거 → "10-minute install + 30-sec code insertion". AdSense = 운영비 회수만 (BM 아님). 진짜 수익원 = $299 fixed-fee audit service + GitHub Sponsors. KPI down-revise (stars 150-600, npm DL 40-250, Pro 0-3). Phase 3 RN = 조건부 (Phase 2 traction 검증 후) |
 
 ---
 
@@ -640,6 +673,8 @@ grep -ri "iuppiter\|xpla\|piup\|drops.iuppiter\|vault.xpla\|walletManagers\|bloc
 | `docs/manual-setup.md` | CLI 없이 copy-paste |
 | `docs/troubleshooting.md` | `auth/requires-recent-login` / QR 카메라 / 403 / 시계 어긋남 등 |
 | `docs/setup-gcp.md` | 사용자 직접 작업 6단계 (Console UI) |
+| `docs/PRODUCTION-CHECKLIST.md` | **신규 Phase 2** — production 검증 7 sections (setup verify / server enforce / recovery / liability / support / Firebase-only / sustainability) |
+| `docs/2026-05-11-firebase-totp-mfa-guide.md` | Rosetta-stone 기술 가이드 — Identity Platform 활성 + TOTP REST PATCH + FE 구현 모든 흐름 |
 
 ---
 
