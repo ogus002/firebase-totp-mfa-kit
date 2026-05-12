@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { detectAuthMode } from '@/lib/auth-mode';
+import { useT } from '@/lib/i18n';
 
 export default function DashboardPage() {
   const router = useRouter();
   const mode = detectAuthMode();
+  const t = useT();
   const [ok, setOk] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -22,14 +24,12 @@ export default function DashboardPage() {
   if (!ok) return null;
   return (
     <main className="page">
-      <h1>Dashboard</h1>
+      <h1>{t.dashboard.title}</h1>
       <div className="card">
-        <p>✓ You are signed in with two-factor authentication.</p>
-        <p className="muted">
-          This is a placeholder. Replace with your real protected content.
-        </p>
+        <p>{t.dashboard.signedIn}</p>
+        <p className="muted">{t.dashboard.placeholder}</p>
         <p>
-          <Link href="/recovery">Manage recovery codes →</Link>
+          <Link href="/recovery">{t.dashboard.manageRecovery}</Link>
         </p>
         <button
           className="btn"
@@ -40,7 +40,7 @@ export default function DashboardPage() {
             router.push('/');
           }}
         >
-          Sign out (Demo)
+          {t.dashboard.signOutDemo}
         </button>
       </div>
     </main>

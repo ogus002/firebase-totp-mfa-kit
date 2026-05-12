@@ -1,29 +1,27 @@
+'use client';
 import Link from 'next/link';
+import { useT } from '@/lib/i18n';
 
 export default function HomePage() {
+  const t = useT();
   return (
     <main className="page">
-      <h1>firebase-totp-mfa playground</h1>
-      <p className="muted">
-        TOTP MFA enrollment + sign-in + recovery flows, in Demo (no Firebase) or Real mode.
-      </p>
+      <h1>{t.home.title}</h1>
+      <p className="muted">{t.home.subtitle}</p>
       <div className="card">
-        <h2>Try the flow</h2>
+        <h2>{t.home.tryFlowHeading}</h2>
         <p>
-          <Link href="/login">→ Sign in</Link>
+          <Link href="/login">{t.home.signInLink}</Link>
         </p>
-        <p className="muted">
-          Demo credentials are pre-filled. Real mode activates when{' '}
-          <code>.env.local</code> is configured.
-        </p>
+        <p className="muted">{t.home.demoCreds}</p>
       </div>
       <div className="card">
-        <h3>What this shows</h3>
+        <h3>{t.home.whatThisShows}</h3>
         <ul>
-          <li>Enrollment with QR code (real RFC 6238 — works with any authenticator app)</li>
-          <li>Sign-in MFA prompt</li>
-          <li>Recovery codes (10 one-time codes)</li>
-          <li>Protected dashboard</li>
+          <li>{t.home.feat_enroll}</li>
+          <li>{t.home.feat_signin}</li>
+          <li>{t.home.feat_recovery}</li>
+          <li>{t.home.feat_dashboard}</li>
         </ul>
       </div>
     </main>

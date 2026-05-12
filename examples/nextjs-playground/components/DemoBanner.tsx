@@ -1,10 +1,12 @@
 'use client';
 import { detectAuthMode } from '@/lib/auth-mode';
+import { useT } from '@/lib/i18n';
 
 export function DemoBanner(): JSX.Element | null {
   // detectAuthMode() reads NEXT_PUBLIC_* env vars — inlined at build time, identical on server and client.
-  // No window check needed; using one created a hydration mismatch (server rendered null, client rendered the banner).
+  // No window check; that previously created a hydration mismatch (server null vs client rendered banner).
   const mode = detectAuthMode();
+  const t = useT();
   if (mode !== 'demo') return null;
   return (
     <div
@@ -18,12 +20,13 @@ export function DemoBanner(): JSX.Element | null {
         borderBottom: '1px solid #fde68a',
       }}
     >
-      <strong>Demo Mode</strong> — UI/UX preview. No real authentication.{' '}
+      <strong>{t.demoBanner.label}</strong>
+      {t.demoBanner.note}
       <a
         href="https://github.com/ogus002/firebase-totp-mfa-kit#real-mode"
         style={{ color: '#92400e', textDecoration: 'underline' }}
       >
-        Connect Firebase in 5 min →
+        {t.demoBanner.cta}
       </a>
     </div>
   );

@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { detectAuthMode } from '@/lib/auth-mode';
+import { useT } from '@/lib/i18n';
 import {
   DEMO_EMAIL,
   DEMO_PASSWORD,
@@ -11,6 +12,7 @@ import {
 export default function LoginPage() {
   const router = useRouter();
   const mode = detectAuthMode();
+  const t = useT();
   const [stage, setStage] = useState<'creds' | 'mfa'>('creds');
   const [email, setEmail] = useState(mode === 'demo' ? DEMO_EMAIL : '');
   const [password, setPassword] = useState(mode === 'demo' ? DEMO_PASSWORD : '');
@@ -23,8 +25,6 @@ export default function LoginPage() {
     setError(null);
     setBusy(true);
     if (mode === 'demo') {
-      // 항상 MFA stage 로 전진 (demo 사용자는 enroll 된 것으로 가정)
-      // 만약 아직 enroll 안 했으면 /mfa-enroll 로 이동
       const enrolled = sessionStorage.getItem('demo:enrolled') === 'true';
       if (enrolled) {
         setStage('mfa');
@@ -34,8 +34,7 @@ export default function LoginPage() {
       setBusy(false);
       return;
     }
-    // Real mode — registry useMfaSignIn 패턴 (Task 8 dogfood 검증)
-    setError('Real mode: fill .env.local with Firebase config to enable.');
+    setError(t.login.realModeStub);
     setBusy(false);
   };
 
@@ -48,7 +47,7 @@ export default function LoginPage() {
         sessionStorage.setItem('demo:signed-in', 'true');
         router.push('/dashboard');
       } else {
-        setError('Wrong code. Check your authenticator app and try again.');
+        setError(t.login.wrongCode);
       }
       setBusy(false);
       return;
@@ -58,10 +57,10 @@ export default function LoginPage() {
 
   return (
     <main className="page">
-      <h1>Sign in</h1>
+      <h1>{t.login.title}</h1>
       {stage === 'creds' && (
         <form onSubmit={handleCreds} className="card">
-          <label className="label" htmlFor="email">Email</label>
+          <label className="label" htmlFor="email">{t.login.email}</label>
           <input
             id="email"
             type="email"
@@ -72,7 +71,7 @@ export default function LoginPage() {
             autoComplete="email"
             required
           />
-          <label className="label" htmlFor="password">Password</label>
+          <label className="label" htmlFor="password">{t.login.password}</label>
           <input
             id="password"
             type="password"
@@ -85,20 +84,20 @@ export default function LoginPage() {
           />
           {mode === 'demo' && (
             <p className="muted" style={{ marginTop: '0.5rem' }}>
-              Demo credentials are pre-filled and locked. Real input disabled to prevent leaks.
+              {t.login.demoLockNote}
             </p>
           )}
           <button type="submit" className="btn" disabled={busy} style={{ marginTop: '1rem' }}>
-            {busy ? 'Signing in…' : 'Continue'}
+            {busy ? t.login.signingIn : t.login.continue}
           </button>
           {error && <p className="error">{error}</p>}
         </form>
       )}
       {stage === 'mfa' && (
         <form onSubmit={handleMfa} className="card">
-          <h2 style={{ marginTop: 0 }}>Two-factor authentication</h2>
-          <p className="muted">Enter the 6-digit code from your authenticator app.</p>
-          <label className="label" htmlFor="code">Authenticator code</label>
+          <h2 style={{ marginTop: 0 }}>{t.login.mfaTitle}</h2>
+          <p className="muted">{t.login.mfaPrompt}</p>
+          <label className="label" htmlFor="code">{t.login.authenticatorCode}</label>
           <input
             id="code"
             type="text"
@@ -113,7 +112,7 @@ export default function LoginPage() {
             autoFocus
           />
           <button type="submit" className="btn" disabled={busy || code.length !== 6} style={{ marginTop: '1rem' }}>
-            {busy ? 'Verifying…' : 'Verify'}
+            {busy ? t.login.verifying : t.login.verify}
           </button>
           {error && <p className="error">{error}</p>}
         </form>
