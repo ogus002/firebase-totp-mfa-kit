@@ -1,7 +1,11 @@
 import { Command } from 'commander';
 import pc from 'picocolors';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import { runAdd } from './commands/add.js';
 import { runEnable } from './commands/enable.js';
+import { runUpdate } from './commands/update.js';
 import { runDoctor } from './commands/doctor.js';
 import { runVerify } from './commands/verify.js';
 
@@ -61,21 +65,16 @@ program
 
 program
   .command('update')
-  .description('Check if local registry source files diverged from the kit (diff only in alpha)')
-  .option('--dry-run', 'Print diff, do not modify files', true)
-  .action(async (opts) => {
-    const { runUpdate } = await import('./commands/update.js');
-    const { readFileSync } = await import('node:fs');
-    const { fileURLToPath } = await import('node:url');
-    const { dirname, join } = await import('node:path');
-
+  .description('Check if local registry source files diverged from the kit (dry-run by default in alpha)')
+  .option('--apply', 'Apply updates (Phase 2.1 — not yet implemented). Default = dry-run.', false)
+  .action(async (opts: Record<string, unknown>) => {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     const pkgJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
 
     const result = await runUpdate({
       projectRoot: process.cwd(),
-      dryRun: opts.dryRun !== false,
+      apply: opts['apply'] === true,
       registryVersion: pkgJson.version,
     });
     process.exit(result.exitCode);

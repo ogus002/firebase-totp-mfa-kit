@@ -18,31 +18,33 @@ describe('update — registry version diff', () => {
   });
 
   it('detects local source file diverged from registry (different version)', async () => {
-    // Mock setup: local file version 0.0.1, registry version 0.0.2
-    const mockProjectDir = '/tmp/test-project';
-    vi.mocked(fs.existsSync).mockImplementation((p) => {
-      return String(p).endsWith('.firebase-totp-mfa.json') || String(p).endsWith('TotpEnroll.tsx');
-    });
+    vi.mocked(fs.existsSync).mockImplementation((p) =>
+      String(p).endsWith('.firebase-totp-mfa.json'),
+    );
     vi.mocked(fs.readFileSync).mockImplementation((p) => {
       if (String(p).endsWith('.firebase-totp-mfa.json')) {
         return JSON.stringify({
           version: '0.0.1',
-          installed: [{ source: 'components/TotpEnroll.source.tsx', dest: 'src/components/TotpEnroll.tsx' }],
+          installed: [
+            { source: 'components/TotpEnroll.source.tsx', dest: 'src/components/TotpEnroll.tsx' },
+          ],
         });
       }
-      return 'old content';
+      return '';
     });
 
-    // Mock registry side: latest version 0.0.2
     const result = await runUpdate({
-      projectRoot: mockProjectDir,
-      dryRun: true,
+      projectRoot: '/tmp/test-project',
+      apply: false,
       registryVersion: '0.0.2',
     });
 
     expect(result.diverged).toHaveLength(1);
     expect(result.diverged[0].file).toContain('TotpEnroll.tsx');
-    expect(result.exitCode).toBe(0);  // dry-run reports but doesn't fail
+    expect(result.diverged[0].status).toBe('modified');
+    expect(result.diverged[0].localVer).toBe('0.0.1');
+    expect(result.diverged[0].registryVer).toBe('0.0.2');
+    expect(result.exitCode).toBe(0);
   });
 
   it('reports clean state when local matches registry', async () => {
@@ -55,11 +57,74 @@ describe('update — registry version diff', () => {
 
     const result = await runUpdate({
       projectRoot: '/tmp/test-project',
-      dryRun: true,
+      apply: false,
       registryVersion: '0.0.2',
     });
 
     expect(result.diverged).toHaveLength(0);
     expect(result.exitCode).toBe(0);
+  });
+
+  it('returns exitCode 2 when metadata file missing', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    const result = await runUpdate({
+      projectRoot: '/tmp/test-project',
+      apply: false,
+      registryVersion: '0.0.2',
+    });
+
+    expect(result.diverged).toHaveLength(0);
+    expect(result.exitCode).toBe(2);
+  });
+
+  it('returns exitCode 2 with friendly error when metadata JSON is malformed', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue('{ this is not json');
+
+    const result = await runUpdate({
+      projectRoot: '/tmp/test-project',
+      apply: false,
+      registryVersion: '0.0.2',
+    });
+
+    expect(result.exitCode).toBe(2);
+    expect(result.diverged).toHaveLength(0);
+  });
+
+  it('returns exitCode 2 with friendly error when metadata shape is invalid', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      JSON.stringify({ version: '0.0.1' }), // missing `installed`
+    );
+
+    const result = await runUpdate({
+      projectRoot: '/tmp/test-project',
+      apply: false,
+      registryVersion: '0.0.2',
+    });
+
+    expect(result.exitCode).toBe(2);
+  });
+
+  it('returns exitCode 2 with explicit message when --apply is used (Phase 2.1 not yet implemented)', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      JSON.stringify({
+        version: '0.0.1',
+        installed: [
+          { source: 'components/TotpEnroll.source.tsx', dest: 'src/components/TotpEnroll.tsx' },
+        ],
+      }),
+    );
+
+    const result = await runUpdate({
+      projectRoot: '/tmp/test-project',
+      apply: true,
+      registryVersion: '0.0.2',
+    });
+
+    expect(result.diverged).toHaveLength(1);
+    expect(result.exitCode).toBe(2); // CI safety: unimplemented apply path must fail loudly
   });
 });
