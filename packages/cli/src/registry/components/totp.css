@@ -1,0 +1,133 @@
+/* TOTP MFA — minimal styles via CSS variables. Override anywhere. */
+:root {
+  --totp-bg: #ffffff;
+  --totp-fg: #111111;
+  --totp-muted: #6b7280;
+  --totp-border: #e5e7eb;
+  --totp-primary: #0070f3;
+  --totp-primary-fg: #ffffff;
+  --totp-error: #d92d20;
+  --totp-success: #027a48;
+  --totp-warning: #b54708;
+  --totp-radius: 8px;
+  --totp-gap: 0.75rem;
+  --totp-pad: 1.5rem;
+  --totp-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --totp-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --totp-bg: #0b0b0c;
+    --totp-fg: #f5f5f5;
+    --totp-muted: #9ca3af;
+    --totp-border: #2a2a2e;
+    --totp-primary: #3b82f6;
+    --totp-primary-fg: #ffffff;
+  }
+}
+
+.totp-card {
+  background: var(--totp-bg);
+  color: var(--totp-fg);
+  padding: var(--totp-pad);
+  border-radius: var(--totp-radius);
+  border: 1px solid var(--totp-border);
+  font-family: var(--totp-font);
+  max-width: 28rem;
+  margin: 1rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--totp-gap);
+}
+.totp-title { margin: 0; font-size: 1.25rem; font-weight: 600; }
+.totp-description { margin: 0; color: var(--totp-muted); font-size: 0.95rem; }
+.totp-hint { margin: 0; color: var(--totp-muted); font-size: 0.85rem; }
+.totp-info { margin: 0; color: var(--totp-muted); font-size: 0.9rem; }
+
+.totp-qr-wrap { display: flex; justify-content: center; padding: 1rem 0; }
+.totp-qr { display: block; }
+
+.totp-manual { font-size: 0.9rem; }
+.totp-manual summary { cursor: pointer; color: var(--totp-primary); }
+.totp-manual-hint { color: var(--totp-muted); font-size: 0.85rem; margin: 0.5rem 0; }
+.totp-manual-key {
+  font-family: var(--totp-mono);
+  background: rgba(0,0,0,0.05);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+  word-break: break-all;
+  user-select: all;
+}
+@media (prefers-color-scheme: dark) {
+  .totp-manual-key { background: rgba(255,255,255,0.08); }
+}
+
+.totp-form { display: flex; flex-direction: column; gap: 0.5rem; }
+.totp-label { font-size: 0.9rem; font-weight: 500; }
+.totp-input {
+  font-family: var(--totp-mono);
+  font-size: 1.25rem;
+  letter-spacing: 0.2em;
+  text-align: center;
+  padding: 0.75rem;
+  border: 1px solid var(--totp-border);
+  border-radius: var(--totp-radius);
+  background: var(--totp-bg);
+  color: var(--totp-fg);
+  outline: none;
+}
+.totp-input:focus { border-color: var(--totp-primary); box-shadow: 0 0 0 2px rgba(0,112,243,0.2); }
+.totp-input[aria-invalid="true"] { border-color: var(--totp-error); }
+
+.totp-button-primary {
+  background: var(--totp-primary);
+  color: var(--totp-primary-fg);
+  border: none;
+  padding: 0.625rem 1rem;
+  border-radius: var(--totp-radius);
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--totp-font);
+}
+.totp-button-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.totp-button-secondary {
+  background: transparent;
+  color: var(--totp-fg);
+  border: 1px solid var(--totp-border);
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--totp-radius);
+  cursor: pointer;
+  font-family: var(--totp-font);
+}
+.totp-button-link {
+  background: transparent;
+  color: var(--totp-primary);
+  border: none;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  font-family: var(--totp-font);
+  text-align: left;
+}
+.totp-button-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.totp-error { color: var(--totp-error); margin: 0; font-size: 0.9rem; }
+.totp-warning { color: var(--totp-warning); margin: 0; font-weight: 500; }
+.totp-success { color: var(--totp-success); margin: 0; font-weight: 500; }
+.totp-loading { color: var(--totp-muted); margin: 0; }
+
+.totp-recovery-list {
+  list-style: none;
+  padding: 1rem;
+  margin: 0;
+  background: rgba(0,0,0,0.04);
+  border-radius: var(--totp-radius);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  font-family: var(--totp-mono);
+}
+@media (prefers-color-scheme: dark) {
+  .totp-recovery-list { background: rgba(255,255,255,0.05); }
+}
+.totp-recovery-list code { font-size: 0.95rem; }

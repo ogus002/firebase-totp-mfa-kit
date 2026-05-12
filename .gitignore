@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env*.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Test
+coverage/
+
+# Internal (운영자 전용 — public 노출 금지)
+internal/
+
+# Local Claude session notes (운영자 전용)
+.claude/
+
+# Superpowers brainstorm runtime (mockups, codex outputs — design docs in docs/superpowers/ are tracked)
+.superpowers/

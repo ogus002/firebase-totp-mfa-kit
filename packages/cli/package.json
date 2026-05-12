@@ -1,0 +1,59 @@
+{
+  "name": "firebase-totp-mfa",
+  "version": "0.0.0",
+  "description": "Add Firebase TOTP MFA in 30 seconds. shadcn-style CLI + AI-friendly orchestration.",
+  "license": "MIT",
+  "author": "<gh-user>",
+  "homepage": "https://github.com/<gh-user>/firebase-totp-mfa-kit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<gh-user>/firebase-totp-mfa-kit.git",
+    "directory": "packages/cli"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "firebase-totp-mfa": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'lint: not configured yet'"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "prompts": "^2.4.2",
+    "picocolors": "^1.0.1",
+    "execa": "^9.3.0",
+    "fast-glob": "^3.3.2",
+    "diff": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/diff": "^5.2.1",
+    "@types/node": "^20.14.0",
+    "@types/prompts": "^2.4.9",
+    "tsup": "^8.2.4",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  },
+  "keywords": [
+    "firebase",
+    "totp",
+    "mfa",
+    "2fa",
+    "cli",
+    "shadcn-style"
+  ]
+}

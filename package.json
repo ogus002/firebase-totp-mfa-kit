@@ -1,0 +1,53 @@
+{
+  "name": "firebase-totp-mfa-kit",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Firebase Auth + Identity Platform TOTP MFA. Add it in 30 seconds. Own the code.",
+  "license": "MIT",
+  "author": "<gh-user>",
+  "homepage": "https://github.com/<gh-user>/firebase-totp-mfa-kit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<gh-user>/firebase-totp-mfa-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/<gh-user>/firebase-totp-mfa-kit/issues"
+  },
+  "keywords": [
+    "firebase",
+    "firebase-auth",
+    "identity-platform",
+    "totp",
+    "mfa",
+    "2fa",
+    "two-factor",
+    "authenticator",
+    "react",
+    "nextjs",
+    "shadcn-style",
+    "cli",
+    "claude-code"
+  ],
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r --filter=./packages/* build",
+    "dev:demo": "pnpm --filter nextjs-playground dev",
+    "test": "pnpm -r --filter=./packages/* test",
+    "lint": "pnpm -r --filter=./packages/* lint",
+    "typecheck": "pnpm -r --filter=./packages/* typecheck",
+    "cli": "node packages/cli/dist/index.js",
+    "changeset": "changeset",
+    "release": "pnpm build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "typescript": "^5.4.0"
+  }
+}
