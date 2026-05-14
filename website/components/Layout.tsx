@@ -8,6 +8,8 @@ type Props = {
   children: ReactNode;
 };
 
+const CF_ANALYTICS_TOKEN = process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN;
+
 export default function Layout({ title, description, children }: Props) {
   return (
     <>
@@ -15,6 +17,13 @@ export default function Layout({ title, description, children }: Props) {
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {CF_ANALYTICS_TOKEN && (
+          <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={`{"token": "${CF_ANALYTICS_TOKEN}"}`}
+          />
+        )}
       </Head>
       <div className="min-h-screen bg-white text-slate-900">
         <header className="border-b">
