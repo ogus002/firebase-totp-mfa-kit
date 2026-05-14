@@ -58,6 +58,18 @@ These are non-negotiable. Failing any one of them is a security incident.
 5. **Never run destructive shell commands** (`rm -rf`, `gcloud * delete`, `firebase * destroy`, force-pushes, hard resets). Even on user request, confirm explicitly first.
 6. **Do not invent registry components.** If a component you need is missing, tell the user — do not write your own under the same names.
 
+## Phase 2-B automation guards (website/ + cron)
+
+These apply to `website/`, `.github/workflows/*.yml`, and the Claude API automation only. Hard rules above still take precedence.
+
+1. **Workflow triggers:** only `push` (main), `schedule` (cron), or `workflow_dispatch`. `pull_request_target` is forbidden — token exfiltration risk.
+2. **Auto-generated content goes through PRs.** Cron must never push to main directly.
+3. **Secrets stay in GitHub Secrets.** `ANTHROPIC_API_KEY` and any Cloudflare token are referenced as `${{ secrets.XXX }}` only — never echoed, never logged.
+4. **Cloudflare Pages = Git Integration only.** No GitHub Actions wrangler deploy path. CF watches `main` and builds from `website/`. `.github/workflows/website-deploy.yml` must not be reintroduced.
+5. **`npm install --ignore-scripts` everywhere under `website/`.** Lifecycle scripts hard-rule (#4 above) still applies — workflows enforce it on CI side.
+6. **Anthropic monthly budget alert** ($20–50) must stay active. `max_tokens` capped at 2000 in `website/scripts/generate-content.ts`.
+7. **outreach channel = TBD.** Decided in Milestone 3 (separate plan).
+
 ## What you CAN do
 
 - Read the user's source code (excluding `.env*`)

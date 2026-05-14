@@ -13,6 +13,8 @@
 
 > **Firebase TOTP MFA in 10 minutes — with auditable diffs.**
 
+> 🌐 **Website**: <https://firebase-totp-mfa-kit.pages.dev>
+
 shadcn-style CLI + registry source install for Next.js / Vite / CRA.
 **CLI primary · Own the code · Agent-compatible (Claude Code / Codex).**
 
