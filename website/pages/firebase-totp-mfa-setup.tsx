@@ -89,7 +89,7 @@ export default function Setup() {
       <p className="mt-8 text-sm text-slate-600">
         Full manual setup:{' '}
         <a
-          href="https://github.com/ogus02/firebase-totp-mfa-kit/blob/main/docs/manual-setup.md"
+          href="https://github.com/ogus002/firebase-totp-mfa-kit/blob/main/docs/manual-setup.md"
           className="underline"
           rel="noreferrer"
         >
@@ -97,7 +97,7 @@ export default function Setup() {
         </a>{' '}
         &middot; Troubleshooting:{' '}
         <a
-          href="https://github.com/ogus02/firebase-totp-mfa-kit/blob/main/docs/troubleshooting.md"
+          href="https://github.com/ogus002/firebase-totp-mfa-kit/blob/main/docs/troubleshooting.md"
           className="underline"
           rel="noreferrer"
         >

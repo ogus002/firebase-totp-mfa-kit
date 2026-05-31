@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
 
 type Props = {
@@ -9,14 +10,25 @@ type Props = {
 };
 
 const CF_ANALYTICS_TOKEN = process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN;
+const SITE_URL = 'https://totp.antmon.kr';
 
 export default function Layout({ title, description, children }: Props) {
+  const router = useRouter();
+  const path = router.asPath.split('?')[0].split('#')[0];
+  const canonicalPath = path.endsWith('/') ? path : `${path}/`;
+  const canonical = `${SITE_URL}${canonicalPath}`;
+
   return (
     <>
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="website" />
         {CF_ANALYTICS_TOKEN && (
           <script
             defer
@@ -32,7 +44,7 @@ export default function Layout({ title, description, children }: Props) {
               firebase-totp-mfa
             </Link>
             <a
-              href="https://github.com/ogus02/firebase-totp-mfa-kit"
+              href="https://github.com/ogus002/firebase-totp-mfa-kit"
               className="text-sm text-slate-600 hover:text-slate-900"
               rel="noreferrer"
             >
