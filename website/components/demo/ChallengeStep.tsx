@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { verifyCode, currentCode, isValidRecovery } from '../../lib/demo-totp';
+import { verifyCode, currentCode, isValidRecovery, normalizeRecovery } from '../../lib/demo-totp';
 import CodeInput from './CodeInput';
 
 type Props = {
   secret: string;
   recoveryCodes: string[];
-  onPassed: () => void;
+  usedRecovery: string[];
+  onPassed: (usedRecoveryCode?: string) => void;
 };
 
-export default function ChallengeStep({ secret, recoveryCodes, onPassed }: Props) {
+export default function ChallengeStep({ secret, recoveryCodes, usedRecovery, onPassed }: Props) {
   const [tab, setTab] = useState<'totp' | 'recovery'>('totp');
   const [code, setCode] = useState('');
   const [recovery, setRecovery] = useState('');
@@ -23,7 +24,7 @@ export default function ChallengeStep({ secret, recoveryCodes, onPassed }: Props
 
   const submitRecovery = () => {
     setError(null);
-    if (isValidRecovery(recoveryCodes, [], recovery)) onPassed();
+    if (isValidRecovery(recoveryCodes, usedRecovery, recovery)) onPassed(normalizeRecovery(recovery));
     else setError('That recovery code is not valid.');
   };
 
@@ -35,13 +36,13 @@ export default function ChallengeStep({ secret, recoveryCodes, onPassed }: Props
       </p>
       <div className="flex gap-2 text-sm">
         <button
-          onClick={() => setTab('totp')}
+          onClick={() => { setTab('totp'); setRevealed(null); setError(null); }}
           className={`px-3 py-1.5 rounded ${tab === 'totp' ? 'bg-slate-900 text-white' : 'bg-slate-100'}`}
         >
           Authenticator code
         </button>
         <button
-          onClick={() => setTab('recovery')}
+          onClick={() => { setTab('recovery'); setRevealed(null); setError(null); }}
           className={`px-3 py-1.5 rounded ${tab === 'recovery' ? 'bg-slate-900 text-white' : 'bg-slate-100'}`}
         >
           Use a recovery code
@@ -50,6 +51,9 @@ export default function ChallengeStep({ secret, recoveryCodes, onPassed }: Props
 
       {tab === 'totp' ? (
         <div className="max-w-xs space-y-3">
+          <label htmlFor="challenge-code" className="block text-sm font-medium mb-1">
+            Authenticator code
+          </label>
           <CodeInput id="challenge-code" value={code} onChange={setCode} onSubmit={submitTotp} autoFocus />
           <button
             onClick={submitTotp}
@@ -73,7 +77,11 @@ export default function ChallengeStep({ secret, recoveryCodes, onPassed }: Props
         </div>
       ) : (
         <div className="max-w-xs space-y-3">
+          <label htmlFor="recovery-input" className="block text-sm font-medium mb-1">
+            Recovery code
+          </label>
           <input
+            id="recovery-input"
             value={recovery}
             onChange={(e) => setRecovery(e.target.value.toUpperCase())}
             placeholder="XXXX-XXXX"

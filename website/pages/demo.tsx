@@ -12,6 +12,7 @@ export default function DemoPage() {
   const [step, setStep] = useState<Step>('enroll');
   const [secret, setSecret] = useState('');
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
+  const [usedRecovery, setUsedRecovery] = useState<string[]>([]);
 
   useEffect(() => {
     setSecret(createSecret());
@@ -20,6 +21,7 @@ export default function DemoPage() {
   const restart = () => {
     setSecret(createSecret());
     setRecoveryCodes([]);
+    setUsedRecovery([]);
     setStep('enroll');
   };
 
@@ -53,7 +55,11 @@ export default function DemoPage() {
             <ChallengeStep
               secret={secret}
               recoveryCodes={recoveryCodes}
-              onPassed={() => setStep('done')}
+              usedRecovery={usedRecovery}
+              onPassed={(usedCode) => {
+                if (usedCode) setUsedRecovery((u) => [...u, usedCode]);
+                setStep('done');
+              }}
             />
           )}
           {step === 'done' && <DoneStep onRestart={restart} />}
