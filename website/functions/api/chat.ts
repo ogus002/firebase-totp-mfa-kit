@@ -38,28 +38,47 @@ function json(obj: unknown, status = 200): Response {
 
 export async function handleChat(body: ChatBody, env: ChatEnv, ip: string): Promise<Response> {
   const kv = env.CONCIERGE_KV;
+
+  // 1. client IP required (CF Pages always sets CF-Connecting-IP; reject otherwise
+  //    so rate limiting can't collapse into one shared "unknown" bucket)
+  if (!ip || ip === 'unknown') return json({ error: 'missing client ip' }, 400);
+
+  // 2. validate messages (cheap guard before any upstream call)
   const messages = Array.isArray(body.messages) ? body.messages.slice(-MSG_CAP) : [];
   if (messages.length === 0) return json({ error: 'no messages' }, 400);
+  if (
+    messages.some(
+      (m) =>
+        (m.role !== 'user' && m.role !== 'assistant') ||
+        typeof m.content !== 'string' ||
+        m.content.length === 0 ||
+        m.content.length > 2000,
+    )
+  ) {
+    return json({ error: 'invalid message' }, 400);
+  }
 
-  // 세션: 첫 메시지는 turnstile, 이후는 sessionId
+  // 3. resolve auth (do NOT create a session yet — avoid orphan on rate-limit reject)
   let sessionId = body.sessionId ?? '';
+  let isFirst = false;
   if (sessionId) {
-    if (!(await isValidSession(kv, sessionId))) {
-      return json({ error: 'session expired' }, 401);
-    }
+    if (!(await isValidSession(kv, sessionId))) return json({ error: 'session expired' }, 401);
   } else if (body.turnstileToken) {
     const ok = await verifyTurnstile(body.turnstileToken, env.TURNSTILE_SECRET_KEY, ip);
     if (!ok) return json({ error: 'turnstile failed' }, 403);
-    sessionId = await createSession(kv);
+    isFirst = true;
   } else {
     return json({ error: 'verification required' }, 400);
   }
 
-  // rate limit (per IP)
+  // 4. rate limit (per IP) — before creating a session
   const rl = await checkAndIncrementRate(kv, `ip:${ip}`, RATE_LIMIT, 3600);
-  if (!rl.ok) return json({ error: 'rate limited', sessionId }, 429);
+  if (!rl.ok) return json({ error: 'rate limited', sessionId: sessionId || undefined }, 429);
 
-  // budget kill-switch
+  // 5. mint session for the first (turnstile-verified) message
+  if (isFirst) sessionId = await createSession(kv);
+
+  // 6. daily budget kill-switch (graceful degrade)
   const cap = Number(env.DAILY_TOKEN_CAP ?? '500000');
   if (await isDailyBudgetExceeded(kv, cap)) {
     return json(
@@ -73,7 +92,7 @@ export async function handleChat(body: ChatBody, env: ChatEnv, ip: string): Prom
     );
   }
 
-  // Anthropic 호출
+  // 7. Anthropic (Haiku)
   const out = await callAnthropic({
     apiKey: env.ANTHROPIC_API_KEY,
     model: MODEL,

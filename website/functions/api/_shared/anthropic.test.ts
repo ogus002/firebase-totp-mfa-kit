@@ -30,6 +30,9 @@ describe('callAnthropic', () => {
     expect(body.model).toBe('claude-haiku-4-5');
     expect(body.system).toBe('SYS');
     expect(body.max_tokens).toBe(600);
+    const headers = (init as RequestInit).headers as Record<string, string>;
+    expect(headers['x-api-key']).toBe('k');
+    expect(headers['anthropic-version']).toBeTruthy();
   });
 
   it('throws on non-200', async () => {

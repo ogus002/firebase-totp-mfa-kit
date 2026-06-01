@@ -57,6 +57,36 @@ describe('handleChat', () => {
     expect(res.status).toBe(400);
   });
 
+  it('returns 401 for an unknown/expired session', async () => {
+    const res = await handleChat(
+      { messages: [{ role: 'user', content: 'hi' }], sessionId: 'nope' },
+      env(),
+      '1.2.3.4',
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 429 when the per-IP rate limit is exceeded', async () => {
+    const e = env();
+    await e.CONCIERGE_KV.put('sess:s1', '1');
+    await e.CONCIERGE_KV.put('rate:ip:1.2.3.4', '20');
+    const res = await handleChat(
+      { messages: [{ role: 'user', content: 'hi' }], sessionId: 's1' },
+      e,
+      '1.2.3.4',
+    );
+    expect(res.status).toBe(429);
+  });
+
+  it('rejects an oversized message with 400', async () => {
+    const res = await handleChat(
+      { messages: [{ role: 'user', content: 'x'.repeat(2001) }], turnstileToken: 'tok' },
+      env(),
+      '1.2.3.4',
+    );
+    expect(res.status).toBe(400);
+  });
+
   it('degrades gracefully when budget exceeded', async () => {
     mockTurnstileOk();
     const e = env();

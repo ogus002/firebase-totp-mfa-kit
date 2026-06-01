@@ -36,6 +36,10 @@ export async function isValidSession(kv: KvLike, id: string): Promise<boolean> {
   return (await kv.get(`sess:${id}`)) !== null;
 }
 
+// NOTE: demo-grade limiter. get-then-put is not atomic (a concurrent burst from
+// one IP can slip ~1 extra request per race window) and the TTL slides on each
+// increment (a sustained < window-rate trickle is bounded by the count, not time).
+// Acceptable at this scale; revisit with Durable Objects if volume grows.
 export async function checkAndIncrementRate(
   kv: KvLike,
   key: string,
@@ -54,6 +58,8 @@ function todayKey(): string {
   return `budget:${new Date().toISOString().slice(0, 10)}`;
 }
 
+// NOTE: same non-atomic caveat — under concurrency actual spend can slightly
+// overshoot the cap before isDailyBudgetExceeded flips. Acceptable at demo scale.
 export async function addDailyTokens(kv: KvLike, tokens: number): Promise<void> {
   const k = todayKey();
   const cur = Number((await kv.get(k)) ?? '0');
