@@ -39,3 +39,33 @@ export function verifyCode(
   });
   return delta !== null;
 }
+
+// 모호한 문자(0/1/I/O) 제외한 alphabet
+const RECOVERY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+function randomChunk(len: number): string {
+  const bytes = new Uint8Array(len);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => RECOVERY_ALPHABET[b % RECOVERY_ALPHABET.length]).join('');
+}
+
+export function generateRecoveryCodes(count = 8): string[] {
+  const codes = new Set<string>();
+  while (codes.size < count) {
+    codes.add(`${randomChunk(4)}-${randomChunk(4)}`);
+  }
+  return Array.from(codes);
+}
+
+export function normalizeRecovery(input: string): string {
+  return input.trim().toUpperCase();
+}
+
+export function isValidRecovery(
+  codes: string[],
+  used: string[],
+  input: string,
+): boolean {
+  const n = normalizeRecovery(input);
+  return codes.includes(n) && !used.includes(n);
+}
