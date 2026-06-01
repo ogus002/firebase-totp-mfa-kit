@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
+import Concierge from './concierge/Concierge';
 
 type Props = {
   title: string;
@@ -79,6 +80,7 @@ export default function Layout({ title, description, children }: Props) {
             </a>
           </div>
         </footer>
+        <Concierge />
       </div>
     </>
   );
