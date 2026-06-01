@@ -13,6 +13,7 @@ export default function Stepper({ current }: { current: Step }) {
       {STEPS.map((s, i) => (
         <li
           key={s.key}
+          aria-current={s.key === current ? 'step' : undefined}
           className={`px-3 py-1.5 rounded ${
             i <= idx ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-500'
           }`}

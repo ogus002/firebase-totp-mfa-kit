@@ -3,14 +3,15 @@ import { useState } from 'react';
 type Props = { codes: string[] };
 
 export default function RecoveryCodes({ codes }: Props) {
-  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   const copy = async () => {
     const text = codes.join('\n');
+    let ok = false;
     try {
       await navigator.clipboard.writeText(text);
+      ok = true;
     } catch {
-      // fallback: hidden textarea + execCommand
       const ta = document.createElement('textarea');
       ta.value = text;
       ta.style.position = 'fixed';
@@ -18,14 +19,14 @@ export default function RecoveryCodes({ codes }: Props) {
       document.body.appendChild(ta);
       ta.select();
       try {
-        document.execCommand('copy');
+        ok = document.execCommand('copy');
       } catch {
-        /* give up silently */
+        ok = false;
       }
       document.body.removeChild(ta);
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setStatus(ok ? 'copied' : 'failed');
+    setTimeout(() => setStatus('idle'), 1500);
   };
 
   return (
@@ -39,7 +40,7 @@ export default function RecoveryCodes({ codes }: Props) {
         onClick={copy}
         className="mt-3 text-sm border rounded px-3 py-1.5 hover:border-slate-900"
       >
-        {copied ? 'Copied ✓' : 'Copy codes'}
+        {status === 'copied' ? 'Copied ✓' : status === 'failed' ? 'Copy failed — select manually' : 'Copy codes'}
       </button>
     </div>
   );

@@ -20,7 +20,7 @@ export default function CodeInput({ value, onChange, onSubmit, autoFocus, id = '
       value={value}
       onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 6))}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' && onSubmit) onSubmit();
+        if (e.key === 'Enter' && onSubmit && value.length === 6) onSubmit();
       }}
     />
   );

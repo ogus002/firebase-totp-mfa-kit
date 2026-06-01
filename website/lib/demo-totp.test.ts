@@ -64,4 +64,11 @@ describe('demo-totp recovery', () => {
   it('rejects an unknown code', () => {
     expect(isValidRecovery(['ABCD-2345'], [], 'ZZZZ-0000')).toBe(false);
   });
+
+  it('accepts a code pasted without dash or with spaces', () => {
+    const codes = ['ABCD-2345'];
+    expect(isValidRecovery(codes, [], 'abcd2345')).toBe(true);
+    expect(isValidRecovery(codes, [], 'ABCD 2345')).toBe(true);
+    expect(isValidRecovery(codes, [], '   ')).toBe(false);
+  });
 });

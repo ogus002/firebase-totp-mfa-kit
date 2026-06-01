@@ -58,7 +58,8 @@ export function generateRecoveryCodes(count = 8): string[] {
 }
 
 export function normalizeRecovery(input: string): string {
-  return input.trim().toUpperCase();
+  // strip everything that isn't a letter/digit (dashes, spaces), then uppercase
+  return input.replace(/[^a-z0-9]/gi, '').toUpperCase();
 }
 
 export function isValidRecovery(
@@ -67,5 +68,8 @@ export function isValidRecovery(
   input: string,
 ): boolean {
   const n = normalizeRecovery(input);
-  return codes.includes(n) && !used.includes(n);
+  if (!n) return false;
+  const normCodes = codes.map(normalizeRecovery);
+  const normUsed = used.map(normalizeRecovery);
+  return normCodes.includes(n) && !normUsed.includes(n);
 }
