@@ -1,0 +1,37 @@
+# Dependabot — organize version updates + reduce PR noise across the monorepo.
+# Security updates (from alerts) run regardless; declaring ecosystems/directories
+# here lets them resolve cleanly and groups version-update PRs into one per ecosystem.
+version: 2
+updates:
+  # Marketing website (standalone npm project, outside the pnpm workspace)
+  - package-ecosystem: "npm"
+    directory: "/website"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      website:
+        patterns: ["*"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Kit packages + examples (pnpm workspace root)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      kit:
+        patterns: ["*"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci(deps)"
