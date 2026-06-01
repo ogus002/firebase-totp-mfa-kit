@@ -30,7 +30,7 @@ jobs:
         run: npx tsx scripts/generate-content.ts
 
       - name: Create PR with suggestion
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'content: weekly automation suggestion'
