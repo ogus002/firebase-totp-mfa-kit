@@ -12,24 +12,24 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "next": "^16.2.6",
+    "next": "^16.2.7",
     "otpauth": "^9.5.1",
     "qrcode": "^1.5.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
-    "@anthropic-ai/sdk": "^0.96.0",
+    "@anthropic-ai/sdk": "^0.100.1",
     "@cloudflare/workers-types": "^4.20260601.1",
-    "@types/node": "^20",
+    "@types/node": "^25",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10",
     "postcss": "^8.5.10",
-    "tailwindcss": "^3",
-    "tsx": "^4.22.0",
-    "typescript": "^5",
+    "tailwindcss": "^4",
+    "tsx": "^4.22.4",
+    "typescript": "^6",
     "vitest": "^4.1.8"
   }
 }
