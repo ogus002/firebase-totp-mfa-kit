@@ -1,7 +1,7 @@
 # AI 컨시에지 + 리드 funnel + Telegram 운영자 어시스트 설계서
 
 **Status:** Approved (brainstorming 2026-06-02)
-**Goal:** totp.antmon.kr 방문자를 **AI 챗 컨시에지 → 자격 판단된 문의 → 협의 후 후결제(Stripe Invoices) 컨설팅** 으로 전환한다. 공개 챗은 최소 비용(FAQ $0 + Haiku), 운영자는 모바일(Telegram)에서 외부 어디서든 처리.
+**Goal:** totp.antmon.kr 방문자를 **AI 챗 컨시에지 → 자격 판단된 문의 → 협의 후 후결제(PayPal Invoicing) 컨설팅** 으로 전환한다. 공개 챗은 최소 비용(FAQ $0 + Haiku), 운영자는 모바일(Telegram)에서 외부 어디서든 처리.
 
 **전략 프레이밍:** 저가 진입 = funnel, 수익 = Consulting (business-plan v3). 본 kit 의 trust hazard 준수 — **컨시에지는 auth 코드 생성·수정 절대 안 함**. 통합 도움은 사람($19 점검/컨설팅)으로 라우팅. 운영자 어시스트는 human-gated (AI 가 초안, 운영자가 승인·발송).
 
@@ -15,7 +15,7 @@
   - 티어0 **정적 FAQ ($0, LLM 미사용)**
   - 티어1 **Haiku 4.5** (직접 질문만, 가드 적용)
   - 티어2 **견적 요청** → triage
-- **SP3 운영자 어시스트**: 견적 → **Claude(Sonnet 4.6) 한글 triage** → **Telegram 푸시** → 운영자 한글 지시 → Claude 초안 → **고객 답변 메일(Resend) + 후결제 인보이스(Stripe Invoices)**.
+- **SP3 운영자 어시스트**: 견적 → **Claude(Sonnet 4.6) 한글 triage** → **Telegram 푸시** → 운영자 한글 지시 → Claude 초안 → **고객 답변 메일(Resend) + 후결제 인보이스(PayPal Invoicing)**.
 
 ### Out of scope (별도/추후)
 - **SP4 유료 딜리버 자동화** (harness 파이프라인 plan→implement→test→deploy) — **창업 명제 결정 + 건당 비용·수익률 테스트(SP0) 선행 게이트** 후 별도 spec. 본 spec 미포함.
@@ -52,11 +52,11 @@ website/
 ```
 
 **런타임 시크릿 (CF Pages 암호화 env — GitHub Secrets 아님, build-time 과 구분):**
-`ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `STRIPE_SECRET_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OPERATOR_CHAT_ID`, `OPERATOR_EMAIL`, `TELEGRAM_WEBHOOK_SECRET`
+`ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_ENV`(sandbox|live), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OPERATOR_CHAT_ID`, `OPERATOR_EMAIL`, `TELEGRAM_WEBHOOK_SECRET`
 **공개 env:** `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
 **KV namespace** 바인딩 (`CONCIERGE_KV`) — rate limit + 일일 budget + lead 임시 저장
 
-**외부 계정:** Cloudflare Turnstile, Resend, Stripe, Telegram Bot(BotFather).
+**외부 계정:** Cloudflare Turnstile, Resend, PayPal(Invoicing — Stripe 제외: 한국 운영자 가입/정산 제약), Telegram Bot(BotFather).
 
 **모델 분담:** 공개 컨시에지 = **claude-haiku-4-5** (고볼륨·저가) / 운영자 triage·초안 = **claude-sonnet-4-6** (드물고 품질 중요). API 호출은 **raw fetch** (Workers 런타임 호환, SDK 미사용). 시스템 prefix **prompt caching**.
 
@@ -98,11 +98,11 @@ QuoteForm → POST /api/quote { email, context, conversation, turnstileToken }
     1. webhook secret + chat_id allowlist(TELEGRAM_OPERATOR_CHAT_ID) 검증 → 아니면 무시
     2. 메시지에서 leadId 맥락 + 운영자 지시 파싱 (KV 에서 lead 로드)
     3. Claude(Sonnet) 로 고객 답변 메일 초안(한글/영어) 작성
-    4. 운영자 지시에 금액 있으면 → Stripe Invoice 생성·발송 (후결제: send_invoice, 호스팅 인보이스 URL)
+    4. 운영자 지시에 금액 있으면 → PayPal Invoicing API 로 invoice 생성 → send (후결제: 고객에게 PayPal 호스팅 인보이스 + 결제 링크)
     5. Resend 로 고객에게 답변 메일 (+ 인보이스 링크)
     6. KV lead status=quoted/sent, Telegram 으로 운영자에게 "발송 완료" 확인
 ```
-**Stripe Invoices (후결제):** `collection_method=send_invoice`, 협의된 금액·설명으로 invoice 생성 → finalize → 고객이 호스팅 인보이스 페이지에서 결제. 선결제·구독 아님.
+**PayPal Invoicing (후결제):** Invoicing API (`/v2/invoicing/invoices` 생성 → `/send`) 로 협의된 금액·설명의 draft invoice 생성 → send → 고객이 PayPal 호스팅 인보이스에서 카드/PayPal 결제. 발급 무료, 결제 시 ~3.5%. 선결제·구독 아님. OAuth client_credentials 토큰으로 호출.
 
 ---
 
@@ -129,7 +129,7 @@ QuoteForm → POST /api/quote { email, context, conversation, turnstileToken }
 - budget 초과 → 티어1 graceful degrade (FAQ + 견적은 계속 동작)
 - Anthropic 5xx/429 → 재시도 1회 후 fallback 메시지
 - Telegram 발송 실패 → 운영자 이메일(Resend)로 fallback 알림 + KV 에 pending 표시
-- Stripe 인보이스 생성 실패 → 운영자에게 Telegram 에러 회신, 고객 메일은 보류
+- PayPal 인보이스 생성 실패 → 운영자에게 Telegram 에러 회신, 고객 메일은 보류
 - 운영자 지시 모호(금액·의도 불명) → 봇이 Telegram 으로 한글 재질문(보내기 전 확인)
 - 중복 제출/leadId 재처리 방지 (KV status 멱등 체크)
 
@@ -146,7 +146,7 @@ QuoteForm → POST /api/quote { email, context, conversation, turnstileToken }
 
 ## 7. 테스트
 
-- **단위(vitest)**: `faq.ts`(데이터 무결성), `_shared` 가드 로직 — turnstile 실패, rate limit 초과, budget cap, telegram secret 검증, lead 멱등성. Anthropic/Stripe/Resend/Telegram 호출은 fetch mock
+- **단위(vitest)**: `faq.ts`(데이터 무결성), `_shared` 가드 로직 — turnstile 실패, rate limit 초과, budget cap, telegram secret 검증, lead 멱등성. Anthropic/PayPal/Resend/Telegram 호출은 fetch mock
 - **함수 통합**: chat 정상/거부(주제외)/budget초과, quote→triage→telegram(mock), telegram→draft→invoice(mock) 경로
 - **UI**: 빌드(정적 export) 통과 + 수동/browse QA — FAB 열림, FAQ 로딩, 직접질문, 견적 폼
 - **수동 end-to-end (배포 후, 테스트 키)**: 견적 1건 → 본인 Telegram 수신 → 지시 → 본인에게 테스트 인보이스/메일 도달 확인
