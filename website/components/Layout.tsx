@@ -43,13 +43,21 @@ export default function Layout({ title, description, children }: Props) {
             <Link href="/" className="font-semibold">
               firebase-totp-mfa
             </Link>
-            <a
-              href="https://github.com/ogus002/firebase-totp-mfa-kit"
-              className="text-sm text-slate-600 hover:text-slate-900"
-              rel="noreferrer"
-            >
-              GitHub
-            </a>
+            <div className="flex items-center gap-5 text-sm">
+              <Link
+                href="/firebase-totp-mfa-setup"
+                className="text-slate-600 hover:text-slate-900"
+              >
+                Setup Guide
+              </Link>
+              <a
+                href="https://github.com/ogus002/firebase-totp-mfa-kit"
+                className="text-slate-600 hover:text-slate-900"
+                rel="noreferrer"
+              >
+                GitHub
+              </a>
+            </div>
           </nav>
         </header>
         <main className="max-w-4xl mx-auto px-6 py-12">{children}</main>

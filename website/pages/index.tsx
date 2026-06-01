@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Layout from '../components/Layout';
 
 export default function Home() {
@@ -16,6 +17,21 @@ export default function Home() {
       <pre className="bg-slate-900 text-slate-100 p-4 rounded text-sm overflow-x-auto">
         npx firebase-totp-mfa add next --area /admin --issuer "MyApp"
       </pre>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link
+          href="/firebase-totp-mfa-setup"
+          className="inline-block bg-slate-900 text-white px-5 py-2.5 rounded font-medium hover:bg-slate-700"
+        >
+          Read the setup guide →
+        </Link>
+        <a
+          href="https://github.com/ogus002/firebase-totp-mfa-kit"
+          className="inline-block border border-slate-300 px-5 py-2.5 rounded font-medium hover:border-slate-900"
+          rel="noreferrer"
+        >
+          View on GitHub
+        </a>
+      </div>
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="border rounded p-4">
           <h3 className="font-semibold mb-2">Shadcn-style</h3>
