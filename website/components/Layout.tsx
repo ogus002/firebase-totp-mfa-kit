@@ -45,6 +45,12 @@ export default function Layout({ title, description, children }: Props) {
             </Link>
             <div className="flex items-center gap-5 text-sm">
               <Link
+                href="/demo"
+                className="text-slate-600 hover:text-slate-900"
+              >
+                Demo
+              </Link>
+              <Link
                 href="/firebase-totp-mfa-setup"
                 className="text-slate-600 hover:text-slate-900"
               >

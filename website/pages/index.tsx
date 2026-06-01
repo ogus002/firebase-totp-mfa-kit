@@ -19,8 +19,14 @@ export default function Home() {
       </pre>
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
-          href="/firebase-totp-mfa-setup"
+          href="/demo"
           className="inline-block bg-slate-900 text-white px-5 py-2.5 rounded font-medium hover:bg-slate-700"
+        >
+          Try the live demo →
+        </Link>
+        <Link
+          href="/firebase-totp-mfa-setup"
+          className="inline-block border border-slate-300 px-5 py-2.5 rounded font-medium hover:border-slate-900"
         >
           Read the setup guide →
         </Link>
