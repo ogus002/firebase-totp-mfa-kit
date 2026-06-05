@@ -24,7 +24,7 @@ interface ChatBody {
   sessionId?: string;
 }
 
-const MODEL = 'claude-haiku-4-5';
+const MODEL = 'claude-haiku-4-5-20251001';
 const MAX_TOKENS = 600;
 const RATE_LIMIT = 20; // per IP per hour
 const MSG_CAP = 12; // 대화 길이 상한
@@ -119,7 +119,8 @@ export const onRequestPost = async (context: {
   const ip = context.request.headers.get('CF-Connecting-IP') ?? 'unknown';
   try {
     return await handleChat(body, context.env, ip);
-  } catch {
-    return json({ error: 'upstream error' }, 502);
+  } catch (e) {
+    // surface the upstream status (e.g. "anthropic 404"/"anthropic 401") for diagnosis — no secrets in the message
+    return json({ error: 'upstream error', detail: (e as Error).message }, 502);
   }
 };
