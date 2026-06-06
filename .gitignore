@@ -38,3 +38,4 @@ internal/
 
 # Superpowers brainstorm runtime (mockups, codex outputs — design docs in docs/superpowers/ are tracked)
 .superpowers/
+.gstack/
