@@ -2,8 +2,8 @@ import { FAQ } from '../../lib/concierge/faq';
 
 export default function FaqChips({ onPick }: { onPick: (id: string) => void }) {
   return (
-    <div className="border-b px-4 py-3">
-      <p className="mb-2 text-xs text-slate-500">Common questions</p>
+    <div className="px-4 py-3">
+      <p className="mb-2 text-xs font-medium text-slate-500">Common questions</p>
       <div className="flex flex-col gap-1.5">
         {FAQ.map((f) => (
           <button
