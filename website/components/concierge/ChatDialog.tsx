@@ -83,7 +83,7 @@ export default function ChatDialog({ onClose }: { onClose: () => void }) {
         ),
       });
       // parse defensively — an edge error page (non-JSON) must not crash into a misleading "Network error"
-      let data: { reply?: string; sessionId?: string; error?: string } = {};
+      let data: { reply?: string; sessionId?: string; error?: string; detail?: string } = {};
       try {
         data = (await res.json()) as typeof data;
       } catch {
@@ -95,7 +95,7 @@ export default function ChatDialog({ onClose }: { onClose: () => void }) {
             ? 'Too many messages — please slow down.'
             : res.status === 403
               ? 'Verification failed — reload and try again.'
-              : 'Something went wrong. Try the FAQ or request help below.',
+              : `Something went wrong${data.detail ? ` (${data.detail})` : ` (${res.status})`}. Try the FAQ or request help below.`,
         );
       } else {
         if (data.sessionId) setSessionId(data.sessionId);
