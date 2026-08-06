@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "next": "^16.2.6",
+    "next": "^16.3.0",
     "otpauth": "^9.5.1",
     "qrcode": "^1.5.4",
     "react": "^19.0.0",
@@ -28,7 +28,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.23",
     "tailwindcss": "^3",
     "tsx": "^4.22.0",
     "typescript": "^5",
